@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% block title %}Reports{% endblock %}
+{% block page_title %}Financial Reports{% endblock %}
+
+{% block content %}
+
+<!-- Date / Month Filter -->
+<div class="glass-card mb-4 fade-in">
+  <form method="GET" action="{{ url_for('reports') }}" class="row g-3 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label" style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.5px;">
+        <i class="fas fa-calendar-day me-1"></i>Check Daily Revenue
+      </label>
+      <input type="date" name="date" value="{{ selected_date }}" class="form-control form-control-glass">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label" style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.5px;">
+        <i class="fas fa-calendar-alt me-1"></i>Check Monthly Revenue
+      </label>
+      <input type="month" name="month" value="{{ selected_month }}" class="form-control form-control-glass">
+    </div>
+    <div class="col-md-4">
+      <button type="submit" class="btn btn-gold w-100">
+        <i class="fas fa-search me-2"></i>View Report
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4 fade-in stagger-1">
+    <div class="stat-card gold">
+      <div class="stat-icon gold"><i class="fas fa-calendar-day"></i></div>
+      <div>
+        <div class="stat-label">Revenue — {{ selected_date }}</div>
+        <div class="stat-value" style="font-size:1.3rem;">৳{{ "{:,.0f}".format(daily_rev) }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 fade-in stagger-2">
+    <div class="stat-card blue">
+      <div class="stat-icon blue"><i class="fas fa-calendar-alt"></i></div>
+      <div>
+        <div class="stat-label">Revenue — {{ selected_month }}</div>
+        <div class="stat-value" style="font-size:1.3rem;">৳{{ "{:,.0f}".format(monthly_rev) }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 fade-in stagger-3">
+    <div class="stat-card green">
+      <div class="stat-icon green"><i class="fas fa-wallet"></i></div>
+      <div>
+        <div class="stat-label">Total Revenue (All Time)</div>
+        <div class="stat-value" style="font-size:1.3rem;">৳{{ "{:,.0f}".format(total_rev) }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Revenue History -->
+<div class="row g-3 mb-4">
+  <div class="col-lg-6 fade-in">
+    <div class="glass-card h-100">
+      <h6 style="color:var(--accent);font-family:'Playfair Display',serif;margin-bottom:16px;">
+        <i class="fas fa-history me-2"></i>Last 7 Days
+      </h6>
+      <div class="table-responsive">
+        <table class="table table-glass">
+          <thead><tr><th>Date</th><th class="text-end">Revenue</th></tr></thead>
+          <tbody>
+            {% for day in last_7_days %}
+            <tr>
+              <td>{{ day.label }}</td>
+              <td class="text-end" style="color:var(--accent);font-weight:600;">৳{{ "{:,.0f}".format(day.revenue) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6 fade-in">
+    <div class="glass-card h-100">
+      <h6 style="color:var(--accent);font-family:'Playfair Display',serif;margin-bottom:16px;">
+        <i class="fas fa-chart-line me-2"></i>Last 6 Months
+      </h6>
+      <div class="table-responsive">
+        <table class="table table-glass">
+          <thead><tr><th>Month</th><th class="text-end">Revenue</th></tr></thead>
+          <tbody>
+            {% for m in last_6_months %}
+            <tr>
+              <td>{{ m.label }}</td>
+              <td class="text-end" style="color:var(--accent);font-weight:600;">৳{{ "{:,.0f}".format(m.revenue) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-4 fade-in">
+    <div class="glass-card h-100">
+      <h6 style="color:var(--accent);font-family:'Playfair Display',serif;margin-bottom:16px;">Payment Status</h6>
+      <div class="chart-container" style="height:200px;">
+        <canvas id="payChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-8 fade-in">
+    <div class="glass-card">
+      <h6 style="color:var(--accent);font-family:'Playfair Display',serif;margin-bottom:16px;">Payment Summary</h6>
+      <div class="table-responsive">
+        <table class="table table-glass">
+          <thead>
+            <tr><th>Status</th><th>Count</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge-glass badge-paid">Paid</span></td>
+              <td style="color:var(--success);font-weight:700;font-size:1.1rem;">{{ paid_count }}</td>
+              <td style="color:var(--text-muted);font-size:0.83rem;">Fully settled bookings</td>
+            </tr>
+            <tr>
+              <td><span class="badge-glass badge-partial">Partial</span></td>
+              <td style="color:var(--warning);font-weight:700;font-size:1.1rem;">{{ partial_count }}</td>
+              <td style="color:var(--text-muted);font-size:0.83rem;">Partially paid, balance due</td>
+            </tr>
+            <tr>
+              <td><span class="badge-glass badge-due">Due</span></td>
+              <td style="color:var(--danger);font-weight:700;font-size:1.1rem;">{{ due_count }}</td>
+              <td style="color:var(--text-muted);font-size:0.83rem;">No payment received</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const ctx = document.getElementById('payChart').getContext('2d');
+new Chart(ctx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Paid', 'Partial', 'Due'],
+    datasets: [{
+      data: [{{ paid_count }}, {{ partial_count }}, {{ due_count }}],
+      backgroundColor: ['rgba(63,185,80,0.7)', 'rgba(210,153,34,0.7)', 'rgba(248,81,73,0.7)'],
+      borderColor: ['#3fb950', '#d29922', '#f85149'],
+      borderWidth: 2,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { color: '#8b949e', font: { size: 12 } } },
+      tooltip: { backgroundColor: '#161b22', borderColor: 'rgba(200,151,58,0.3)', borderWidth: 1, bodyColor: '#e6edf3', titleColor: '#c8973a' }
+    }
+  }
+});
+</script>
+{% endblock %}

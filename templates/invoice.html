@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 style="color:#c8973a;font-size:1.8rem;">🧾 Invoice</h1>
+    <p style="color:#8b949e;">Booking #{{ booking.id }}</p>
+  </div>
+  <div class="d-flex gap-2">
+    <button onclick="window.print()" class="btn btn-gold">
+      <i class="fas fa-print me-2"></i>Print Invoice
+    </button>
+    <a href="{{ url_for('booking_history') }}" class="btn btn-glass">
+      <i class="fas fa-arrow-left me-2"></i>Back
+    </a>
+  </div>
+</div>
+
+<!-- Invoice Card -->
+<div class="glass-card" id="invoiceArea">
+
+  <!-- Hotel Header with Image -->
+  <div style="border-radius:12px;overflow:hidden;margin-bottom:30px;position:relative;height:120px;">
+    <img
+      src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200"
+      alt="Hotel"
+      style="width:100%;height:100%;object-fit:cover;filter:brightness(0.35);"
+    />
+    <div style="position:absolute;inset:0;display:flex;align-items:center;padding:24px;gap:20px;">
+      <div style="width:60px;height:60px;background:linear-gradient(135deg,#c8973a,#f0c060);
+        border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;">
+        🏨
+      </div>
+      <div>
+        <div style="color:#c8973a;font-size:1.5rem;font-weight:700;">Enterprise Hospitality Platform</div>
+        <div style="color:#8b949e;font-size:0.85rem;">Premium Hotel Management · Bangladesh</div>
+        <div style="color:#8b949e;font-size:0.8rem;">📞 +880-1700-000000 | 📧 info@smarthotelbd.com</div>
+      </div>
+      <div style="margin-left:auto;text-align:right;">
+        <div style="color:#c8973a;font-size:1.2rem;font-weight:700;">INVOICE</div>
+        <div style="color:#e6edf3;font-size:0.85rem;">#INV-{{ "%04d"|format(booking.id) }}</div>
+        <div style="color:#8b949e;font-size:0.8rem;">{{ now.strftime('%d %B %Y') if now else '' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Guest & Booking Info -->
+  <div class="row g-4 mb-4">
+
+    <!-- Guest Info -->
+    <div class="col-md-6">
+      <div style="background:rgba(255,255,255,0.03);border:1px solid #30363d;
+        border-radius:12px;padding:20px;">
+        <h6 style="color:#c8973a;font-size:0.78rem;text-transform:uppercase;
+          letter-spacing:1px;margin-bottom:16px;">
+          <i class="fas fa-user me-2"></i>Guest Information
+        </h6>
+        <table style="width:100%;">
+          <tr>
+            <td style="color:#8b949e;font-size:0.85rem;padding:4px 0;width:40%;">Name</td>
+            <td style="color:#e6edf3;font-size:0.85rem;font-weight:600;">
+              {{ booking.customer.full_name }}
+            </td>
+          </tr>
+          <tr>
+            <td style="color:#8b949e;font-size:0.85rem;padding:4px 0;">Phone</td>
+            <td style="color:#e6edf3;font-size:0.85rem;">{{ booking.customer.phone }}</td>
+          </tr>
+          <tr>
+            <td style="color:#8b949e;font-size:0.85rem;padding:4px 0;">Email</td>
+            <td style="color:#e6edf3;font-size:0.85rem;">{{ booking.customer.email or '—' }}</td>
+          </tr>
+          <tr>
+            <td style="color:#8b949e;font-size:0.85rem;padding:4px 0;">NID/Passport</td>
+            <td style="color:#e6edf3;font-size:0.85rem;">{{ booking.customer.nid_passport or '—' }}</td>
+          </tr>
+          <tr>
+            <td style="color:#8b949e;font-size:0.85rem;padding:4px 0;">Address</td>
+            <td style="color:#e6edf3;font-size:0.85rem;">{{ booking.customer.address or '—' }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Booking Info -->
+    <div class="col-md-6">
+      <div style="background:rgba(255,255,255,0.03);border:1px solid #30363d;
+        border-radius:12px;padding:20px;">
+        <h6 style="color:#c8973a;font-size:0.78rem;text-transform:uppercase;
+          letter-spacing:1px;margin-bottom:16px;">
+          <i class="fas fa-calendar me-2"></i>Booking Information
+        </h6>
+        <table style="width:100%;">
+          <tr>
+            <td style="color:#8b949e;font-size:0.85rem;padding:4px 0;width:40%;">Booking ID</td>
+            <td style="color:#c8973a;font-size:0.85rem;font-weight:700;">#{{ booking.id }}</td>
+          </tr>
+          <tr>
+            <td style="color:#8b949e;font-size:0.85rem;padding:4px 0;">Room</td>
+            <td style="color:#e6edf3;font-size:0.85rem;font-weight:600;">
+              Room {{ booking.room.room_number }} —
+              {{ booking.room.room_type }} · {{ booking.room.ac_type }}
+            </td>
+          </tr>
+          <tr>
+            <td style="color:#8b949e;font-size:0.85rem;padding:4px 0;">Check-in</td>
+            <td style="color:#e6edf3;font-size:0.85rem;">{{ booking.checkin_date }}</td>
+          </tr>
+          <tr>
+            <td style="color:#8b949e;font-size:0.85rem;padding:4px 0;">Check-out</td>
+            <td style="color:#e6edf3;font-size:0.85rem;">{{ booking.checkout_date }}</td>
+          </tr>
+          <tr>
+            <td style="color:#8b949e;font-size:0.85rem;padding:4px 0;">Duration</td>
+            <td style="color:#e6edf3;font-size:0.85rem;">
+              {{ (booking.checkout_date - booking.checkin_date).days }} nights
+            </td>
+          </tr>
+          <tr>
+            <td style="color:#8b949e;font-size:0.85rem;padding:4px 0;">Status</td>
+            <td>
+              <span style="padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;
+                color:#3fb950;background:rgba(63,185,80,0.1);border:1px solid rgba(63,185,80,0.4);">
+                {{ booking.booking_status }}
+              </span>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Room Image -->
+  <div style="border-radius:12px;overflow:hidden;margin-bottom:24px;height:140px;position:relative;">
+    {% if booking.room.room_type == 'Double' %}
+      <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1200"
+    {% elif booking.room.room_type == 'Suite' %}
+      <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=1200"
+    {% else %}
+      <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200"
+    {% endif %}
+      alt="Room" style="width:100%;height:100%;object-fit:cover;filter:brightness(0.5);">
+    <div style="position:absolute;inset:0;display:flex;align-items:center;padding:24px;">
+      <div>
+        <div style="color:#c8973a;font-size:1.2rem;font-weight:700;">
+          Room {{ booking.room.room_number }}
+        </div>
+        <div style="color:#e6edf3;font-size:0.85rem;">
+          {{ booking.room.room_type }} · {{ booking.room.ac_type }}
+        </div>
+        <div style="color:#3fb950;font-weight:700;font-size:1.1rem;margin-top:4px;">
+          ৳{{ "{:,.0f}".format(booking.room.price) }}/night
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Billing Table -->
+  <div style="background:rgba(255,255,255,0.03);border:1px solid #30363d;
+    border-radius:12px;overflow:hidden;margin-bottom:24px;">
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="background:#0d1117;">
+          <th style="padding:14px 16px;color:#8b949e;font-size:0.8rem;
+            font-weight:600;text-align:left;border-bottom:1px solid #30363d;">
+            Description
+          </th>
+          <th style="padding:14px 16px;color:#8b949e;font-size:0.8rem;
+            font-weight:600;text-align:center;border-bottom:1px solid #30363d;">
+            Nights
+          </th>
+          <th style="padding:14px 16px;color:#8b949e;font-size:0.8rem;
+            font-weight:600;text-align:right;border-bottom:1px solid #30363d;">
+            Rate/Night
+          </th>
+          <th style="padding:14px 16px;color:#8b949e;font-size:0.8rem;
+            font-weight:600;text-align:right;border-bottom:1px solid #30363d;">
+            Amount
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:16px;color:#e6edf3;">
+            <div style="font-weight:600;">Room {{ booking.room.room_number }}</div>
+            <div style="color:#8b949e;font-size:0.82rem;">
+              {{ booking.room.room_type }} · {{ booking.room.ac_type }}
+            </div>
+          </td>
+          <td style="padding:16px;color:#e6edf3;text-align:center;">
+            {{ (booking.checkout_date - booking.checkin_date).days }}
+          </td>
+          <td style="padding:16px;color:#e6edf3;text-align:right;">
+            ৳{{ "{:,.0f}".format(booking.room.price) }}
+          </td>
+          <td style="padding:16px;color:#3fb950;font-weight:700;text-align:right;">
+            ৳{{ "{:,.0f}".format(booking.total_amount) }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Payment Summary -->
+  <div class="row justify-content-end mb-4">
+    <div class="col-md-5">
+      <div style="background:rgba(200,151,58,0.05);border:1px solid rgba(200,151,58,0.2);
+        border-radius:12px;padding:20px;">
+        {% if booking.payment %}
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+          <span style="color:#8b949e;font-size:0.85rem;">Total Amount</span>
+          <span style="color:#e6edf3;font-weight:600;">
+            ৳{{ "{:,.0f}".format(booking.total_amount) }}
+          </span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+          <span style="color:#8b949e;font-size:0.85rem;">Paid Amount</span>
+          <span style="color:#3fb950;font-weight:600;">
+            ৳{{ "{:,.0f}".format(booking.payment.paid_amount) }}
+          </span>
+        </div>
+        <div style="border-top:1px solid #30363d;padding-top:10px;
+          display:flex;justify-content:space-between;">
+          <span style="color:#8b949e;font-size:0.85rem;">Due Amount</span>
+          <span style="color:#f85149;font-weight:700;font-size:1.1rem;">
+            ৳{{ "{:,.0f}".format(booking.payment.due_amount) }}
+          </span>
+        </div>
+        <div style="margin-top:10px;text-align:center;">
+          <span style="padding:4px 16px;border-radius:20px;font-size:0.8rem;font-weight:600;
+            {% if booking.payment.payment_status == 'Paid' %}
+              color:#3fb950;background:rgba(63,185,80,0.1);border:1px solid rgba(63,185,80,0.4);
+            {% elif booking.payment.payment_status == 'Partial' %}
+              color:#c8973a;background:rgba(200,151,58,0.1);border:1px solid rgba(200,151,58,0.4);
+            {% else %}
+              color:#f85149;background:rgba(248,81,73,0.1);border:1px solid rgba(248,81,73,0.4);
+            {% endif %}">
+            {{ booking.payment.payment_status }}
+          </span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="border-top:1px solid #30363d;padding-top:20px;text-align:center;">
+    <div style="color:#8b949e;font-size:0.82rem;margin-bottom:6px;">
+      Thank you for choosing Enterprise Hospitality Platform! 🏨
+    </div>
+    <div style="color:#8b949e;font-size:0.78rem;">
+      📍 Dhaka, Bangladesh &nbsp;|&nbsp;
+      📞 +880-1700-000000 &nbsp;|&nbsp;
+      📧 info@smarthotelbd.com
+    </div>
+  </div>
+
+</div>
+
+<!-- Print Style -->
+<style>
+@media print {
+  .sidebar, .navbar, .btn, nav { display: none !important; }
+  #invoiceArea { margin: 0; padding: 20px; }
+  body { background: white !important; }
+}
+</style>
+
+{% endblock %}

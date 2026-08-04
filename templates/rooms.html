@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Header Banner -->
+<div style="border-radius:16px;overflow:hidden;margin-bottom:30px;position:relative;height:160px;">
+  <img
+    src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200"
+    alt="Hotel"
+    style="width:100%;height:100%;object-fit:cover;filter:brightness(0.4);"
+  />
+  <div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:30px;">
+    <h1 style="color:#c8973a;font-size:2rem;font-weight:700;">🛏️ Room Management</h1>
+    <p style="color:#e6edf3;font-size:0.9rem;margin-top:6px;">
+      Manage all hotel rooms — {{ rooms|length }} rooms total
+    </p>
+  </div>
+</div>
+
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+    <div class="alert alert-glass alert-{{ category }}-glass auto-dismiss mb-3">
+      <i class="fas fa-info-circle me-2"></i>{{ message }}
+    </div>
+  {% endfor %}
+{% endwith %}
+
+<!-- Add Room Button -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div style="color:#8b949e;font-size:0.9rem;">
+    Total: {{ rooms|length }} rooms
+  </div>
+  <button class="btn btn-gold" data-bs-toggle="modal" data-bs-target="#addRoomModal">
+    <i class="fas fa-plus me-2"></i>Add New Room
+  </button>
+</div>
+
+<!-- Rooms Grid -->
+<div class="row g-4 mb-4">
+  {% for room in rooms %}
+  <div class="col-sm-6 col-md-4 col-lg-3">
+    <div style="background:#161b22;border:1px solid #30363d;border-radius:12px;overflow:hidden;">
+
+      <!-- Room Image -->
+      <div style="height:150px;overflow:hidden;position:relative;">
+        {% if room.room_type == 'Double' %}
+          <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=400"
+        {% elif room.room_type == 'Suite' %}
+          <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=400"
+        {% else %}
+          <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400"
+        {% endif %}
+          alt="{{ room.room_type }}"
+          style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s;"
+          onmouseover="this.style.transform='scale(1.05)'"
+          onmouseout="this.style.transform='scale(1)'"
+        >
+        <!-- AC Badge -->
+        <div style="position:absolute;top:8px;right:8px;
+          background:{% if room.ac_type == 'AC' %}rgba(88,166,255,0.9){% else %}rgba(139,148,158,0.9){% endif %};
+          padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:600;color:#fff;">
+          {% if room.ac_type == 'AC' %}❄️ AC{% else %}🌀 Non-AC{% endif %}
+        </div>
+        <!-- Status Badge -->
+        <div style="position:absolute;top:8px;left:8px;
+          background:{% if room.status == 'Available' %}rgba(63,185,80,0.9)
+          {% elif room.status == 'Occupied' %}rgba(248,81,73,0.9)
+          {% else %}rgba(200,151,58,0.9){% endif %};
+          padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:600;color:#fff;">
+          {{ room.status }}
+        </div>
+      </div>
+
+      <!-- Room Details -->
+      <div style="padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div style="font-size:1.3rem;font-weight:700;color:#c8973a;">
+            Room {{ room.room_number }}
+          </div>
+        </div>
+        <div style="color:#8b949e;font-size:0.82rem;margin-bottom:10px;">
+          {{ room.room_type }} · {{ room.ac_type }}
+        </div>
+        <div style="color:#3fb950;font-weight:700;font-size:1.1rem;margin-bottom:14px;">
+          ৳{{ "{:,.0f}".format(room.price) }}
+          <span style="color:#8b949e;font-size:0.75rem;">/night</span>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex gap-2">
+          <button class="btn btn-glass btn-sm flex-fill"
+            data-bs-toggle="modal"
+            data-bs-target="#editRoomModal{{ room.id }}">
+            <i class="fas fa-edit me-1"></i>Edit
+          </button>
+          <form method="POST" action="{{ url_for('delete_room', id=room.id) }}"
+            onsubmit="return confirm('Delete Room {{ room.room_number }}?')">
+            <button type="submit" class="btn btn-sm"
+              style="background:rgba(248,81,73,0.1);border:1px solid rgba(248,81,73,0.4);color:#f85149;padding:6px 12px;border-radius:6px;">
+              <i class="fas fa-trash"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Room Modal -->
+  <div class="modal fade" id="editRoomModal{{ room.id }}" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content" style="background:#161b22;border:1px solid #30363d;">
+        <div class="modal-header" style="border-color:#30363d;">
+          <h5 class="modal-title" style="color:#c8973a;">Edit Room {{ room.room_number }}</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form method="POST" action="{{ url_for('edit_room', id=room.id) }}">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label" style="color:#8b949e;">Room Number</label>
+              <input type="text" name="room_number" class="form-control form-control-glass"
+                value="{{ room.room_number }}" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" style="color:#8b949e;">Room Type</label>
+              <select name="room_type" class="form-select form-control-glass">
+                <option {% if room.room_type=='Single' %}selected{% endif %}>Single</option>
+                <option {% if room.room_type=='Double' %}selected{% endif %}>Double</option>
+                <option {% if room.room_type=='Suite' %}selected{% endif %}>Suite</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" style="color:#8b949e;">AC Type</label>
+              <select name="ac_type" class="form-select form-control-glass">
+                <option {% if room.ac_type=='AC' %}selected{% endif %}>AC</option>
+                <option {% if room.ac_type=='Non-AC' %}selected{% endif %}>Non-AC</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" style="color:#8b949e;">Price per Night (৳)</label>
+              <input type="number" name="price" class="form-control form-control-glass"
+                value="{{ room.price }}" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" style="color:#8b949e;">Status</label>
+              <select name="status" class="form-select form-control-glass">
+                <option {% if room.status=='Available' %}selected{% endif %}>Available</option>
+                <option {% if room.status=='Occupied' %}selected{% endif %}>Occupied</option>
+                <option {% if room.status=='Maintenance' %}selected{% endif %}>Maintenance</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer" style="border-color:#30363d;">
+            <button type="button" class="btn btn-glass" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-gold">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Add Room Modal -->
+<div class="modal fade" id="addRoomModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content" style="background:#161b22;border:1px solid #30363d;">
+      <div class="modal-header" style="border-color:#30363d;">
+        <h5 class="modal-title" style="color:#c8973a;">Add New Room</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{{ url_for('add_room') }}">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label" style="color:#8b949e;">Room Number</label>
+            <input type="text" name="room_number" class="form-control form-control-glass"
+              placeholder="e.g. 301" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" style="color:#8b949e;">Room Type</label>
+            <select name="room_type" class="form-select form-control-glass">
+              <option>Single</option>
+              <option>Double</option>
+              <option>Suite</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" style="color:#8b949e;">AC Type</label>
+            <select name="ac_type" class="form-select form-control-glass">
+              <option>AC</option>
+              <option>Non-AC</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" style="color:#8b949e;">Price per Night (৳)</label>
+            <input type="number" name="price" class="form-control form-control-glass"
+              placeholder="e.g. 2500" required>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-color:#30363d;">
+          <button type="button" class="btn btn-glass" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-gold">Add Room</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

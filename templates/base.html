@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Smart Hotel Management System{% endblock %} - Bangladesh</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- Mobile Overlay -->
+<div class="mobile-overlay" id="mobileOverlay"></div>
+
+<!-- ─── Sidebar ──────────────────────────────────── -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fas fa-hotel" style="color:#0d1117"></i></div>
+    <h5>Enterprise Hospitality Platform</h5>
+    <small>Management System</small>
+  </div>
+
+  <div class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint=='dashboard' %}active{% endif %}">
+      <i class="fas fa-tachometer-alt"></i> Dashboard
+    </a>
+
+    <div class="nav-section-label">Operations</div>
+    <a href="{{ url_for('rooms') }}" class="nav-link {% if request.endpoint=='rooms' %}active{% endif %}">
+      <i class="fas fa-door-open"></i> Rooms
+    </a>
+    <a href="{{ url_for('customers') }}" class="nav-link {% if request.endpoint=='customers' %}active{% endif %}">
+      <i class="fas fa-users"></i> Customers
+    </a>
+    <a href="{{ url_for('booking_history') }}" class="nav-link {% if request.endpoint=='booking_history' %}active{% endif %}">
+      <i class="fas fa-calendar-check"></i> Bookings
+    </a>
+    <a href="{{ url_for('payments') }}" class="nav-link {% if request.endpoint=='payments' %}active{% endif %}">
+      <i class="fas fa-money-bill-wave"></i> Payments
+    </a>
+
+    <div class="nav-section-label">Reports</div>
+    <a href="{{ url_for('reports') }}" class="nav-link {% if request.endpoint=='reports' %}active{% endif %}">
+      <i class="fas fa-chart-bar"></i> Reports
+    </a>
+    <a href="{{ url_for('book_room') }}" class="nav-link" target="_blank">
+      <i class="fas fa-bed"></i> Guest Booking
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <div style="width:36px;height:36px;background:rgba(200,151,58,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+        <i class="fas fa-user-shield" style="color:var(--accent);font-size:14px;"></i>
+      </div>
+      <div>
+        <div style="font-size:0.82rem;font-weight:600;">{{ current_user.username }}</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);">Administrator</div>
+      </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="btn btn-glass w-100" style="font-size:0.8rem;">
+      <i class="fas fa-sign-out-alt me-1"></i> Logout
+    </a>
+  </div>
+</nav>
+
+<!-- ─── Main Content ──────────────────────────── -->
+<div class="main-content">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn-glass border-0" id="sidebarToggle" style="padding:8px 12px;border-radius:8px;display:none;" onclick="">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div>
+        <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
+        <div class="topbar-meta"><i class="fas fa-map-marker-alt me-1"></i>Bangladesh · <span id="liveClock"></span></div>
+      </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge" style="background:rgba(200,151,58,0.15);color:var(--accent);border:1px solid rgba(200,151,58,0.3);padding:6px 12px;border-radius:8px;font-size:0.75rem;">
+        <i class="fas fa-circle me-1" style="color:var(--success);font-size:8px;"></i> Online
+      </span>
+    </div>
+  </div>
+
+  <!-- Flash Messages -->
+  <div class="px-4 pt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-glass alert-{{ category }}-glass auto-dismiss d-flex align-items-center gap-2" style="padding:12px 16px;">
+          <i class="fas {% if category=='success' %}fa-check-circle{% elif category=='danger' %}fa-exclamation-circle{% elif category=='warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endwith %}
+  </div>
+
+  <!-- Page Content -->
+  <div class="page-content">
+    {% block content %}{% endblock %}
+  </div>
+
+  <!-- Footer -->
+  <div style="padding:16px 28px;border-top:1px solid var(--glass-border);font-size:0.75rem;color:var(--text-muted);text-align:center;">
+    © 2024 Smart Hotel Management System · Bangladesh · All rights reserved
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<!-- Custom JS -->
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+<script>
+// Show sidebar toggle on mobile
+if (window.innerWidth <= 768) {
+  document.getElementById('sidebarToggle').style.display = 'block';
+}
+// Live clock
+function updateClock() {
+  const now = new Date();
+  document.getElementById('liveClock').textContent =
+    now.toLocaleTimeString('en-BD', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+setInterval(updateClock, 1000);
+updateClock();
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

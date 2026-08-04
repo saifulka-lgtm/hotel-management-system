@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Customer History{% endblock %}
+{% block page_title %}Customer History{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('customers') }}" class="btn btn-glass mb-4">
+  <i class="fas fa-arrow-left me-2"></i>Back to Customers
+</a>
+
+<div class="glass-card mb-4">
+  <div class="row g-3">
+    <div class="col-md-8">
+      <h4 style="color:var(--accent);font-family:'Playfair Display',serif;">{{ customer.full_name }}</h4>
+      <div class="d-flex flex-wrap gap-3 mt-2" style="font-size:0.87rem;color:var(--text-muted);">
+        <span><i class="fas fa-phone me-1"></i>{{ customer.phone }}</span>
+        {% if customer.email %}<span><i class="fas fa-envelope me-1"></i>{{ customer.email }}</span>{% endif %}
+        {% if customer.nid_passport %}<span><i class="fas fa-id-card me-1"></i>{{ customer.nid_passport }}</span>{% endif %}
+        {% if customer.address %}<span><i class="fas fa-map-marker-alt me-1"></i>{{ customer.address }}</span>{% endif %}
+      </div>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <div style="font-size:0.78rem;color:var(--text-muted);">Registered: {{ customer.created_at.strftime('%d %B %Y') }}</div>
+      <div style="font-size:1.1rem;color:var(--accent);font-weight:700;margin-top:4px;">{{ customer.bookings|length }} Total Bookings</div>
+    </div>
+  </div>
+</div>
+
+<div class="glass-card">
+  <h6 style="color:var(--accent);margin-bottom:16px;font-family:'Playfair Display',serif;">Booking History</h6>
+  <div class="table-responsive">
+    <table class="table table-glass mb-0">
+      <thead>
+        <tr><th>#</th><th>Room</th><th>Check-in</th><th>Check-out</th><th>Nights</th><th>Amount</th><th>Status</th><th>Payment</th></tr>
+      </thead>
+      <tbody>
+        {% for b in customer.bookings %}
+        <tr>
+          <td><a href="{{ url_for('invoice', id=b.id) }}" style="color:var(--accent);">#{{ b.id }}</a></td>
+          <td>Room {{ b.room.room_number }} ({{ b.room.room_type }})</td>
+          <td>{{ b.checkin_date.strftime('%d %b %Y') }}</td>
+          <td>{{ b.checkout_date.strftime('%d %b %Y') }}</td>
+          <td>{{ (b.checkout_date - b.checkin_date).days }}</td>
+          <td style="color:var(--accent);font-weight:600;">৳{{ "{:,.0f}".format(b.total_amount) }}</td>
+          <td><span class="badge-glass badge-{{ b.booking_status.lower() }}">{{ b.booking_status }}</span></td>
+          <td>
+            {% if b.payment %}
+              <span class="badge-glass badge-{{ b.payment.payment_status.lower() }}">{{ b.payment.payment_status }}</span>
+            {% else %}—{% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="text-center" style="color:var(--text-muted);padding:24px;">No bookings found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

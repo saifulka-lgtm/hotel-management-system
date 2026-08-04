@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-5">
+
+    <h2 class="mb-4">Payment List</h2>
+
+    <table class="table table-bordered table-striped">
+
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Room</th>
+                <th>Total Amount</th>
+                <th>Paid</th>
+                <th>Due</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for p in payments %}
+
+            <tr>
+                <td>{{ loop.index }}</td>
+
+                <td>
+                    {{ p.booking.customer.full_name }}
+                </td>
+
+                <td>
+                    {{ p.booking.room.room_number }}
+                </td>
+
+                <td>
+                    ৳{{ p.booking.total_amount }}
+                </td>
+
+                <td>
+                    ৳{{ p.paid_amount }}
+                </td>
+
+                <td>
+                    ৳{{ p.due_amount }}
+                </td>
+
+                <td>
+                    {{ p.payment_status }}
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+</body>
+</html>

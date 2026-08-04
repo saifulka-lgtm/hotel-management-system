@@ -1,0 +1,338 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Enterprise Hospitality Platform API",
+    "description": "API documentation for Smart Hotel Management System Bangladesh",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:5000",
+      "description": "Local Development Server"
+    }
+  ],
+  "paths": {
+    "/api/rooms": {
+      "get": {
+        "summary": "Get All Available Rooms",
+        "description": "Returns all rooms with status = Available",
+        "tags": ["Rooms"],
+        "responses": {
+          "200": {
+            "description": "List of available rooms",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": 1,
+                    "room_number": "101",
+                    "room_type": "Single",
+                    "ac_type": "AC",
+                    "price": 1500
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/available-rooms": {
+      "get": {
+        "summary": "Get Rooms Available for Date Range",
+        "description": "Returns rooms with no overlapping bookings for the given check-in and check-out dates",
+        "tags": ["Rooms"],
+        "parameters": [
+          {
+            "name": "checkin",
+            "in": "query",
+            "required": true,
+            "description": "Check-in date in YYYY-MM-DD format",
+            "schema": {
+              "type": "string",
+              "example": "2026-06-25"
+            }
+          },
+          {
+            "name": "checkout",
+            "in": "query",
+            "required": true,
+            "description": "Check-out date in YYYY-MM-DD format",
+            "schema": {
+              "type": "string",
+              "example": "2026-06-27"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of available rooms for the date range",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": 1,
+                    "room_number": "101",
+                    "room_type": "Single",
+                    "ac_type": "AC",
+                    "price": 1500
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/book-room": {
+      "post": {
+        "summary": "Create a New Booking",
+        "description": "Books a room for a guest. Creates a new customer if phone number not found.",
+        "tags": ["Bookings"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["full_name", "phone", "room_id", "checkin_date", "checkout_date"],
+                "properties": {
+                  "full_name":     { "type": "string",  "example": "Syful Islam" },
+                  "phone":         { "type": "string",  "example": "+8801712345678" },
+                  "email":         { "type": "string",  "example": "syful@email.com" },
+                  "nid_passport":  { "type": "string",  "example": "1234567890" },
+                  "address":       { "type": "string",  "example": "Dhaka, Bangladesh" },
+                  "room_id":       { "type": "integer", "example": 1 },
+                  "checkin_date":  { "type": "string",  "example": "2026-06-25" },
+                  "checkout_date": { "type": "string",  "example": "2026-06-27" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "302": {
+            "description": "Redirects to booking confirmation page on success"
+          }
+        }
+      }
+    },
+    "/booking-confirmation/{id}": {
+      "get": {
+        "summary": "Get Booking Confirmation",
+        "description": "Returns booking confirmation details",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "example": 1 }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Booking confirmation page" }
+        }
+      }
+    },
+    "/booking-history": {
+      "get": {
+        "summary": "Get All Bookings",
+        "description": "Returns list of all bookings (admin only)",
+        "tags": ["Bookings"],
+        "responses": {
+          "200": { "description": "List of all bookings" },
+          "302": { "description": "Redirects to login if not authenticated" }
+        }
+      }
+    },
+    "/cancel-booking/{id}": {
+      "post": {
+        "summary": "Cancel a Booking",
+        "description": "Cancels a booking and marks room as Available (admin only)",
+        "tags": ["Bookings"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "example": 1 }
+          }
+        ],
+        "responses": {
+          "302": { "description": "Redirects to booking history" }
+        }
+      }
+    },
+    "/customers": {
+      "get": {
+        "summary": "Get All Customers",
+        "description": "Returns list of all customers with optional search (admin only)",
+        "tags": ["Customers"],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "description": "Search by name, phone, or NID",
+            "schema": { "type": "string", "example": "Syful" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "List of customers" }
+        }
+      }
+    },
+    "/payments": {
+      "get": {
+        "summary": "Get All Payments",
+        "description": "Returns list of all payments (admin only)",
+        "tags": ["Payments"],
+        "responses": {
+          "200": { "description": "List of payments" }
+        }
+      }
+    },
+    "/add-payment/{booking_id}": {
+      "post": {
+        "summary": "Add Payment for a Booking",
+        "description": "Records a payment against a booking (admin only)",
+        "tags": ["Payments"],
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "example": 1 }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "paid_amount":      { "type": "number",  "example": 3000 },
+                  "payment_method":   { "type": "string",  "example": "Cash" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "302": { "description": "Redirects to payments page" }
+        }
+      }
+    },
+    "/checkin/{id}": {
+      "post": {
+        "summary": "Check In a Guest",
+        "description": "Marks a booking as checked in and room as Occupied (admin only)",
+        "tags": ["Check-In / Check-Out"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "example": 1 }
+          }
+        ],
+        "responses": {
+          "302": { "description": "Redirects to booking history" }
+        }
+      }
+    },
+    "/checkout/{id}": {
+      "post": {
+        "summary": "Check Out a Guest",
+        "description": "Marks a booking as completed, records final payment, and frees the room (admin only)",
+        "tags": ["Check-In / Check-Out"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "example": 1 }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "paid_amount":    { "type": "number", "example": 3000 },
+                  "payment_method": { "type": "string", "example": "Cash" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "302": { "description": "Redirects to invoice page" }
+        }
+      }
+    },
+    "/invoice/{id}": {
+      "get": {
+        "summary": "Get Invoice",
+        "description": "Returns invoice for a completed booking (admin only)",
+        "tags": ["Payments"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "example": 1 }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Invoice page" }
+        }
+      }
+    },
+    "/dashboard": {
+      "get": {
+        "summary": "Admin Dashboard",
+        "description": "Returns dashboard stats: rooms, revenue, recent bookings (admin only)",
+        "tags": ["Admin"],
+        "responses": {
+          "200": { "description": "Dashboard page" },
+          "302": { "description": "Redirects to login if not authenticated" }
+        }
+      }
+    },
+    "/reports": {
+      "get": {
+        "summary": "Revenue Reports",
+        "description": "Returns daily, monthly, and total revenue reports (admin only)",
+        "tags": ["Admin"],
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "example": "2026-06-20" }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "example": "2026-06" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Reports page" }
+        }
+      }
+    }
+  },
+  "tags": [
+    { "name": "Rooms",               "description": "Room availability and management" },
+    { "name": "Bookings",            "description": "Room booking operations" },
+    { "name": "Customers",           "description": "Customer management" },
+    { "name": "Payments",            "description": "Payment tracking and invoices" },
+    { "name": "Check-In / Check-Out","description": "Guest check-in and check-out" },
+    { "name": "Admin",               "description": "Admin dashboard and reports" }
+  ]
+}

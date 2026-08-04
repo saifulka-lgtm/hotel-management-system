@@ -1,0 +1,545 @@
+/* =============================================
+   Smart Hotel Management System - Bangladesh
+   Glassmorphism Dark Theme
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary:     #c8973a;
+  --primary-dark:#a07828;
+  --accent:      #e8b86d;
+  --bg-dark:     #0d1117;
+  --bg-card:     rgba(255,255,255,0.05);
+  --bg-sidebar:  rgba(13,17,23,0.97);
+  --glass:       rgba(255,255,255,0.07);
+  --glass-border:rgba(255,255,255,0.12);
+  --text:        #e6edf3;
+  --text-muted:  #8b949e;
+  --success:     #3fb950;
+  --danger:      #f85149;
+  --warning:     #d29922;
+  --info:        #58a6ff;
+  --sidebar-w:   260px;
+  --radius:      16px;
+  --shadow:      0 8px 32px rgba(0,0,0,0.4);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg-dark);
+  color: var(--text);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(200,151,58,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 10%, rgba(88,166,255,0.05) 0%, transparent 50%);
+}
+
+h1,h2,h3,h4,h5,h6 { font-family: 'Playfair Display', serif; }
+
+/* ─── Scrollbar ─────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+
+/* ─── Login Page ────────────────────────────── */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0d1117 100%);
+  position: relative;
+  overflow: hidden;
+}
+.login-page::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,151,58,0.15), transparent 70%);
+  top: -200px; left: -200px;
+  animation: pulse 6s ease-in-out infinite;
+}
+.login-page::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(88,166,255,0.08), transparent 70%);
+  bottom: -100px; right: -100px;
+  animation: pulse 8s ease-in-out infinite reverse;
+}
+@keyframes pulse {
+  0%,100% { transform: scale(1); opacity: 0.6; }
+  50%      { transform: scale(1.1); opacity: 1; }
+}
+
+.login-card {
+  background: rgba(22,27,34,0.9);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+}
+.login-logo {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.login-logo .hotel-icon {
+  width: 72px; height: 72px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 32px;
+  box-shadow: 0 8px 32px rgba(200,151,58,0.3);
+}
+.login-logo h2 {
+  font-size: 1.4rem;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.login-logo p { color: var(--text-muted); font-size: 0.85rem; }
+
+/* ─── Sidebar ───────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--glass-border);
+  position: fixed;
+  top: 0; left: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-brand {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--glass-border);
+}
+.sidebar-brand .brand-icon {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-bottom: 10px;
+}
+.sidebar-brand h5 { font-size: 0.95rem; color: var(--accent); margin-bottom: 2px; }
+.sidebar-brand small { color: var(--text-muted); font-size: 0.72rem; }
+
+.sidebar-nav { padding: 16px 12px; flex: 1; }
+.nav-section-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  padding: 16px 10px 8px;
+  font-weight: 700;
+}
+.sidebar-nav .nav-link {
+  color: var(--text-muted);
+  padding: 10px 14px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.87rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  margin-bottom: 2px;
+}
+.sidebar-nav .nav-link i { width: 18px; text-align: center; }
+.sidebar-nav .nav-link:hover,
+.sidebar-nav .nav-link.active {
+  background: rgba(200,151,58,0.15);
+  color: var(--accent);
+}
+.sidebar-nav .nav-link.active {
+  border-left: 3px solid var(--primary);
+  padding-left: 11px;
+}
+.sidebar-footer {
+  padding: 16px 12px;
+  border-top: 1px solid var(--glass-border);
+}
+
+/* ─── Main Content ──────────────────────────── */
+.main-content {
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.topbar {
+  background: rgba(13,17,23,0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar-title { font-size: 1.2rem; font-weight: 600; color: var(--text); }
+.topbar-meta { color: var(--text-muted); font-size: 0.82rem; }
+.page-content { padding: 28px; flex: 1; }
+
+/* ─── Glass Cards ───────────────────────────── */
+.glass-card {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.glass-card:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+
+/* ─── Stat Cards ────────────────────────────── */
+.stat-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  transition: all 0.3s;
+  overflow: hidden;
+  position: relative;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: -20px; right: -20px;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  opacity: 0.06;
+}
+.stat-card.gold::before    { background: var(--primary); }
+.stat-card.blue::before    { background: var(--info); }
+.stat-card.green::before   { background: var(--success); }
+.stat-card.red::before     { background: var(--danger); }
+.stat-card.purple::before  { background: #8b5cf6; }
+
+.stat-icon {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.stat-icon.gold   { background: rgba(200,151,58,0.2);  color: var(--primary); }
+.stat-icon.blue   { background: rgba(88,166,255,0.2);  color: var(--info); }
+.stat-icon.green  { background: rgba(63,185,80,0.2);   color: var(--success); }
+.stat-icon.red    { background: rgba(248,81,73,0.2);   color: var(--danger); }
+.stat-icon.purple { background: rgba(139,92,246,0.2);  color: #a78bfa; }
+
+.stat-label { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.stat-value { font-size: 1.6rem; font-weight: 700; color: var(--text); line-height: 1; font-family: 'Playfair Display', serif; }
+.stat-sub   { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+
+/* ─── Tables ────────────────────────────────── */
+.table-glass {
+  background: transparent;
+  color: var(--text);
+}
+.table-glass thead th {
+  background: rgba(200,151,58,0.1);
+  color: var(--accent);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  border-color: var(--glass-border);
+  padding: 12px 16px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+}
+.table-glass tbody tr {
+  border-color: rgba(255,255,255,0.05);
+  transition: background 0.15s;
+}
+.table-glass tbody tr:hover { background: rgba(200,151,58,0.05); }
+.table-glass tbody td {
+  padding: 12px 16px;
+  border-color: rgba(255,255,255,0.05);
+  font-size: 0.87rem;
+  vertical-align: middle;
+}
+
+/* ─── Badges ────────────────────────────────── */
+.badge-glass {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.badge-available  { background: rgba(63,185,80,0.15);   color: var(--success); border: 1px solid rgba(63,185,80,0.3); }
+.badge-booked     { background: rgba(88,166,255,0.15);  color: var(--info);    border: 1px solid rgba(88,166,255,0.3); }
+.badge-occupied   { background: rgba(248,81,73,0.15);   color: var(--danger);  border: 1px solid rgba(248,81,73,0.3); }
+.badge-confirmed  { background: rgba(63,185,80,0.15);   color: var(--success); border: 1px solid rgba(63,185,80,0.3); }
+.badge-cancelled  { background: rgba(248,81,73,0.15);   color: var(--danger);  border: 1px solid rgba(248,81,73,0.3); }
+.badge-completed  { background: rgba(139,92,246,0.15);  color: #a78bfa;        border: 1px solid rgba(139,92,246,0.3); }
+.badge-paid       { background: rgba(63,185,80,0.15);   color: var(--success); border: 1px solid rgba(63,185,80,0.3); }
+.badge-partial    { background: rgba(210,153,34,0.15);  color: var(--warning); border: 1px solid rgba(210,153,34,0.3); }
+.badge-due        { background: rgba(248,81,73,0.15);   color: var(--danger);  border: 1px solid rgba(248,81,73,0.3); }
+
+/* ─── Buttons ───────────────────────────────── */
+.btn-gold {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #0d1117;
+  border: none;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 10px 20px;
+  transition: all 0.25s;
+  box-shadow: 0 4px 16px rgba(200,151,58,0.3);
+}
+.btn-gold:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(200,151,58,0.5);
+  color: #0d1117;
+}
+.btn-glass {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 0.83rem;
+  transition: all 0.2s;
+}
+.btn-glass:hover { background: rgba(255,255,255,0.12); color: var(--text); }
+.btn-danger-glass {
+  background: rgba(248,81,73,0.15);
+  border: 1px solid rgba(248,81,73,0.3);
+  color: var(--danger);
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 0.83rem;
+  transition: all 0.2s;
+}
+.btn-danger-glass:hover { background: rgba(248,81,73,0.25); color: var(--danger); }
+.btn-success-glass {
+  background: rgba(63,185,80,0.15);
+  border: 1px solid rgba(63,185,80,0.3);
+  color: var(--success);
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 0.83rem;
+  transition: all 0.2s;
+}
+.btn-success-glass:hover { background: rgba(63,185,80,0.25); color: var(--success); }
+.btn-info-glass {
+  background: rgba(88,166,255,0.15);
+  border: 1px solid rgba(88,166,255,0.3);
+  color: var(--info);
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 0.83rem;
+  transition: all 0.2s;
+}
+.btn-info-glass:hover { background: rgba(88,166,255,0.25); color: var(--info); }
+
+/* ─── Forms ─────────────────────────────────── */
+.form-control-glass, .form-select-glass {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  transition: all 0.2s;
+}
+.form-control-glass:focus, .form-select-glass:focus {
+  background: rgba(255,255,255,0.1);
+  border-color: var(--primary);
+  color: var(--text);
+  box-shadow: 0 0 0 3px rgba(200,151,58,0.15);
+  outline: none;
+}
+.form-control-glass::placeholder { color: var(--text-muted); }
+.form-label { color: var(--text-muted); font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+
+/* ─── Modals ─────────────────────────────────── */
+.modal-content {
+  background: #161b22;
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  color: var(--text);
+}
+.modal-header {
+  border-bottom: 1px solid var(--glass-border);
+  padding: 20px 24px 16px;
+}
+.modal-footer { border-top: 1px solid var(--glass-border); }
+.modal-title { font-family: 'Playfair Display', serif; color: var(--accent); }
+.btn-close { filter: invert(1); }
+
+/* ─── Room Card Grid ─────────────────────────── */
+.room-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: all 0.3s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.room-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transform: scaleX(0);
+  transition: transform 0.3s;
+}
+.room-card:hover::after { transform: scaleX(1); }
+.room-card:hover { border-color: rgba(200,151,58,0.3); }
+.room-number { font-size: 1.5rem; font-family: 'Playfair Display', serif; color: var(--accent); }
+
+/* ─── Invoice ───────────────────────────────── */
+@media print {
+  .sidebar, .topbar, .no-print { display: none !important; }
+  .main-content { margin-left: 0; }
+  body { background: white; color: #000; }
+  .invoice-wrapper { max-width: 100%; }
+}
+.invoice-wrapper {
+  background: #161b22;
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 780px;
+  margin: 0 auto;
+}
+.invoice-header { border-bottom: 2px solid var(--primary); padding-bottom: 24px; margin-bottom: 24px; }
+.invoice-hotel-name { font-size: 1.8rem; color: var(--accent); }
+.invoice-number { font-size: 0.8rem; color: var(--text-muted); text-align: right; }
+.invoice-table th { background: rgba(200,151,58,0.15); color: var(--accent); }
+.invoice-total { font-size: 1.2rem; color: var(--accent); font-family: 'Playfair Display', serif; }
+
+/* ─── Chart Container ───────────────────────── */
+.chart-container { position: relative; height: 220px; }
+
+/* ─── Alerts / Flash ────────────────────────── */
+.alert-glass {
+  background: var(--glass);
+  border-radius: 10px;
+  border-left: 4px solid;
+  font-size: 0.87rem;
+}
+.alert-success-glass { border-color: var(--success); color: var(--success); }
+.alert-danger-glass  { border-color: var(--danger);  color: var(--danger); }
+.alert-warning-glass { border-color: var(--warning); color: var(--warning); }
+.alert-info-glass    { border-color: var(--info);    color: var(--info); }
+
+/* ─── Public Booking Page ───────────────────── */
+.public-page {
+  min-height: 100vh;
+  background: linear-gradient(160deg, #0d1117 0%, #161b22 100%);
+}
+.public-header {
+  background: rgba(13,17,23,0.95);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.booking-hero {
+  padding: 80px 0 60px;
+  text-align: center;
+}
+.booking-hero h1 { font-size: 2.8rem; color: var(--accent); margin-bottom: 12px; }
+.booking-hero p { color: var(--text-muted); font-size: 1.05rem; }
+
+/* ─── Responsive ────────────────────────────── */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 260px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0; }
+  .mobile-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 999;
+  }
+  .mobile-overlay.active { display: block; }
+  .topbar { padding: 12px 16px; }
+  .page-content { padding: 16px; }
+  .stat-value { font-size: 1.3rem; }
+}
+
+/* ─── Animations ────────────────────────────── */
+.fade-in { animation: fadeIn 0.4s ease both; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+
+/* ─── Confirmation Page ─────────────────────── */
+.confirm-icon {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: rgba(63,185,80,0.15);
+  border: 2px solid var(--success);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 36px;
+  color: var(--success);
+  animation: scaleIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes scaleIn {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* Fix dropdown options visibility in dark theme */
+select.form-control-glass,
+select.form-select {
+  color-scheme: dark;
+}
+
+.form-control-glass option,
+select.form-select option {
+  background-color: #14141c !important;
+  color: #e6e6e6 !important;
+  padding: 10px;
+}
+
+/* Make the highlighted/hovered option clearly visible too */
+.form-control-glass option:checked,
+.form-control-glass option:hover,
+select.form-select option:checked,
+select.form-select option:hover {
+  background-color: #c8973a !important;
+  color: #0d1117 !important;
+}

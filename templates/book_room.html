@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book a Room – Enterprise Hospitality Platform</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body class="public-page">
+
+<!-- Header -->
+<div class="public-header">
+  <div class="container d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center gap-3">
+      <div style="width:38px;height:38px;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:10px;display:flex;align-items:center;justify-content:center;">
+        <i class="fas fa-hotel" style="color:#0d1117;font-size:16px;"></i>
+      </div>
+      <div>
+        <div style="font-family:'Playfair Display',serif;color:var(--accent);font-size:1rem;line-height:1;">Smart Hotel BD</div>
+        <div style="font-size:0.7rem;color:var(--text-muted);">Bangladesh</div>
+      </div>
+    </div>
+    <a href="{{ url_for('login') }}" class="btn btn-glass btn-sm">
+      <i class="fas fa-lock me-1"></i> Admin
+    </a>
+  </div>
+</div>
+
+<!-- Hero -->
+<div class="booking-hero">
+  <div class="container">
+    <h1><i class="fas fa-bed me-3"></i>Book Your Room</h1>
+    <p>Comfortable stays for your visit to Bangladesh. No account required.</p>
+  </div>
+</div>
+
+<!-- Flash Messages -->
+<div class="container mb-4">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="alert alert-glass alert-{{ category }}-glass auto-dismiss" style="padding:12px 16px;">
+        <i class="fas fa-info-circle me-2"></i>{{ message }}
+      </div>
+    {% endfor %}
+  {% endwith %}
+</div>
+
+<!-- Booking Form -->
+<div class="container pb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="glass-card">
+        <h5 style="color:var(--accent);font-family:'Playfair Display',serif;margin-bottom:24px;">
+          <i class="fas fa-calendar-plus me-2"></i>Booking Details
+        </h5>
+        <form method="POST" action="{{ url_for('book_room') }}">
+
+          <div class="mb-3">
+            <h6 style="color:var(--text-muted);font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">
+              <i class="fas fa-user me-2"></i>Guest Information
+            </h6>
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label">Full Name *</label>
+              <input type="text" name="full_name" class="form-control form-control-glass" required placeholder="Your full name">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Phone Number *</label>
+              <input type="text" name="phone" class="form-control form-control-glass" required placeholder="+880...">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email Address</label>
+              <input type="email" name="email" class="form-control form-control-glass" placeholder="Optional">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">NID / Passport</label>
+              <input type="text" name="nid_passport" class="form-control form-control-glass" placeholder="ID number">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Address</label>
+              <input type="text" name="address" class="form-control form-control-glass" placeholder="Your address">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <h6 style="color:var(--text-muted);font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">
+              <i class="fas fa-door-open me-2"></i>Room & Dates
+            </h6>
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label">Check-in Date *</label>
+              <input type="date" name="checkin_date" id="checkin_date" class="form-control form-control-glass" min="{{ today }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Check-out Date *</label>
+              <input type="date" name="checkout_date" id="checkout_date" class="form-control form-control-glass" min="{{ today }}" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Select Room *</label>
+              <select name="room_id" id="room_id" class="form-select form-control-glass" required disabled>
+                <option value="">— Select check-in & check-out dates first —</option>
+              </select>
+              <div id="roomLoadingMsg" class="mt-2" style="font-size:0.8rem;color:var(--text-muted);display:none;">
+                <i class="fas fa-spinner fa-spin me-1"></i>Checking room availability...
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card mb-4" style="background:rgba(200,151,58,0.05);border-color:rgba(200,151,58,0.2);">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div style="font-size:0.8rem;color:var(--text-muted);">Duration</div>
+                <div id="nightsDisplay" style="color:var(--text);font-size:0.95rem;">—</div>
+              </div>
+              <div class="text-end">
+                <div style="font-size:0.8rem;color:var(--text-muted);">Estimated Total</div>
+                <div id="totalDisplay" style="color:var(--accent);font-size:1.4rem;font-weight:700;font-family:'Playfair Display',serif;">৳0</div>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-gold w-100" id="submitBtn" style="padding:14px;font-size:1rem;" disabled>
+            <i class="fas fa-check-circle me-2"></i>Confirm Booking
+          </button>
+        </form>
+      </div>
+
+      <!-- Available Rooms (loaded dynamically once dates are picked) -->
+      <div class="glass-card mt-4" id="availableRoomsCard" style="display:none;">
+        <h6 style="color:var(--accent);font-family:'Playfair Display',serif;margin-bottom:16px;">
+          <i class="fas fa-th me-2"></i>Available Rooms (<span id="roomCount">0</span>)
+        </h6>
+        <div class="row g-3" id="availableRoomsGrid"></div>
+      </div>
+
+      <div class="glass-card mt-4 text-center" id="noRoomsMsg" style="padding:40px;">
+        <i class="fas fa-calendar-check" style="font-size:2rem;color:var(--text-muted);margin-bottom:12px;display:block;"></i>
+        <p style="color:var(--text-muted);">Select your check-in and check-out dates above to see available rooms.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+<!-- ✅ FIX: Wrapped in {} block scope to avoid variable conflicts with app.js -->
+<script>
+{
+  const checkinInput  = document.getElementById('checkin_date');
+  const checkoutInput = document.getElementById('checkout_date');
+  const roomSelect    = document.getElementById('room_id');
+  const submitBtn     = document.getElementById('submitBtn');
+  const loadingMsg    = document.getElementById('roomLoadingMsg');
+  const roomsCard     = document.getElementById('availableRoomsCard');
+  const roomsGrid     = document.getElementById('availableRoomsGrid');
+  const roomCountEl   = document.getElementById('roomCount');
+  const noRoomsMsg    = document.getElementById('noRoomsMsg');
+  const nightsDisplay = document.getElementById('nightsDisplay');
+  const totalDisplay  = document.getElementById('totalDisplay');
+
+  function updatePriceDisplay() {
+    const ci  = checkinInput.value;
+    const co  = checkoutInput.value;
+    const opt = roomSelect.options[roomSelect.selectedIndex];
+    if (!ci || !co || !opt || !opt.dataset.price) {
+      nightsDisplay.textContent = '—';
+      totalDisplay.textContent  = '৳0';
+      return;
+    }
+    const nights = Math.round((new Date(co) - new Date(ci)) / 86400000);
+    const price  = parseFloat(opt.dataset.price);
+    nightsDisplay.textContent = nights + (nights === 1 ? ' night' : ' nights');
+    totalDisplay.textContent  = '৳' + Math.round(nights * price).toLocaleString();
+  }
+
+  async function loadAvailableRooms() {
+    const ci = checkinInput.value;
+    const co = checkoutInput.value;
+
+    roomSelect.innerHTML    = '<option value="">— Select check-in & check-out dates first —</option>';
+    roomSelect.disabled     = true;
+    submitBtn.disabled      = true;
+    roomsCard.style.display = 'none';
+    noRoomsMsg.style.display = 'block';
+    noRoomsMsg.querySelector('p').textContent = 'Select your check-in and check-out dates above to see available rooms.';
+
+    if (!ci || !co) return;
+    if (new Date(co) <= new Date(ci)) {
+      noRoomsMsg.querySelector('p').textContent = 'Check-out date must be after check-in date.';
+      return;
+    }
+
+    loadingMsg.style.display = 'block';
+
+    try {
+      const res   = await fetch(`/api/available-rooms?checkin=${ci}&checkout=${co}`);
+      const rooms = await res.json();
+      loadingMsg.style.display = 'none';
+
+      if (rooms.length === 0) {
+        roomSelect.innerHTML = '<option value="">— No rooms available for these dates —</option>';
+        noRoomsMsg.querySelector('p').textContent = 'No rooms are available for the selected dates. Please try different dates.';
+        noRoomsMsg.style.display = 'block';
+        return;
+      }
+
+      roomSelect.innerHTML = '<option value="">— Choose an available room —</option>';
+      rooms.forEach(r => {
+        const opt       = document.createElement('option');
+        opt.value       = r.id;
+        opt.dataset.price = r.price;
+        opt.textContent = `Room ${r.room_number} — ${r.room_type} · ${r.ac_type} — ৳${Math.round(r.price).toLocaleString()}/night`;
+        roomSelect.appendChild(opt);
+      });
+      roomSelect.disabled = false;
+      submitBtn.disabled  = false;
+
+      roomsGrid.innerHTML = '';
+      rooms.forEach(r => {
+        roomsGrid.insertAdjacentHTML('beforeend', `
+          <div class="col-sm-6 col-md-4">
+            <div class="room-card">
+              <div class="room-number">${r.room_number}</div>
+              <div style="font-size:0.82rem;color:var(--text-muted);margin:4px 0;">${r.room_type} · ${r.ac_type}</div>
+              <div style="color:var(--accent);font-weight:700;">৳${Math.round(r.price).toLocaleString()}<span style="color:var(--text-muted);font-size:0.75rem;">/night</span></div>
+              <div class="mt-2"><span class="badge-glass badge-available">Available</span></div>
+            </div>
+          </div>`);
+      });
+      roomCountEl.textContent  = rooms.length;
+      roomsCard.style.display  = 'block';
+      noRoomsMsg.style.display = 'none';
+
+    } catch (err) {
+      loadingMsg.style.display = 'none';
+      roomSelect.innerHTML     = '<option value="">— Error loading rooms, please retry —</option>';
+    }
+
+    updatePriceDisplay();
+  }
+
+  checkinInput.addEventListener('change', () => {
+    if (checkoutInput.value && new Date(checkoutInput.value) <= new Date(checkinInput.value)) {
+      const nextDay = new Date(checkinInput.value);
+      nextDay.setDate(nextDay.getDate() + 1);
+      checkoutInput.value = nextDay.toISOString().split('T')[0];
+    }
+    checkoutInput.min = checkinInput.value;
+    loadAvailableRooms();
+  });
+  checkoutInput.addEventListener('change', loadAvailableRooms);
+  roomSelect.addEventListener('change', updatePriceDisplay);
+}
+<div class="text-center mt-3">
+  <a href="{{ url_for('my_booking') }}" style="color:var(--text-muted);font-size:0.85rem;">
+    <i class="fas fa-search me-1"></i> Already booked? Check your booking status
+  </a>
+</div>
+</script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Bookings{% endblock %}
+{% block page_title %}Booking Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h5 style="color:var(--accent);font-family:'Playfair Display',serif;margin:0;">All Bookings</h5>
+    <small style="color:var(--text-muted);">{{ bookings|length }} total bookings</small>
+  </div>
+  <a href="{{ url_for('book_room') }}" class="btn btn-gold" target="_blank">
+    <i class="fas fa-plus me-2"></i>New Booking
+  </a>
+</div>
+
+<div class="glass-card">
+  <div class="table-responsive">
+    <table class="table table-glass mb-0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Guest</th>
+          <th>Room</th>
+          <th>Check-in</th>
+          <th>Check-out</th>
+          <th>Nights</th>
+          <th>Amount</th>
+          <th>Payment</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in bookings %}
+        <tr class="fade-in" style="animation-delay:{{ loop.index0 * 0.03 }}s">
+          <td><span style="color:var(--accent);font-weight:700;">#{{ b.id }}</span></td>
+          <td>
+            <div style="font-weight:600;">{{ b.customer.full_name }}</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">{{ b.customer.phone }}</div>
+          </td>
+          <td>
+            <div style="color:var(--accent);">{{ b.room.room_number }}</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">{{ b.room.room_type }} · {{ b.room.ac_type }}</div>
+          </td>
+          <td style="font-size:0.83rem;">{{ b.checkin_date.strftime('%d %b %Y') }}</td>
+          <td style="font-size:0.83rem;">{{ b.checkout_date.strftime('%d %b %Y') }}</td>
+          <td style="text-align:center;">{{ (b.checkout_date - b.checkin_date).days }}</td>
+          <td style="color:var(--accent);font-weight:600;">৳{{ "{:,.0f}".format(b.total_amount) }}</td>
+          <td>
+            {% if b.payment %}
+              <div><span class="badge-glass badge-{{ b.payment.payment_status.lower() }}">{{ b.payment.payment_status }}</span></div>
+              <div style="font-size:0.73rem;color:var(--text-muted);">Due: ৳{{ "{:,.0f}".format(b.payment.due_amount) }}</div>
+            {% else %}
+              <span class="badge-glass badge-due">Due</span>
+            {% endif %}
+          </td>
+          <td><span class="badge-glass badge-{{ b.booking_status.lower() }}">{{ b.booking_status }}</span></td>
+          <td>
+            <div class="d-flex gap-1 flex-wrap">
+              {% if b.booking_status == 'Confirmed' and not b.checkin %}
+                <form method="POST" action="{{ url_for('checkin', id=b.id) }}">
+                  <button type="submit" class="btn btn-success-glass btn-sm" title="Check In">
+                    <i class="fas fa-sign-in-alt"></i>
+                  </button>
+                </form>
+              {% endif %}
+              {% if b.checkin and not b.checkout and b.booking_status != 'Cancelled' %}
+                <a href="{{ url_for('checkout', id=b.id) }}" class="btn btn-info-glass btn-sm" title="Check Out">
+                  <i class="fas fa-sign-out-alt"></i>
+                </a>
+              {% endif %}
+              <a href="{{ url_for('invoice', id=b.id) }}" class="btn btn-glass btn-sm" title="Invoice">
+                <i class="fas fa-file-invoice"></i>
+              </a>
+              {% if b.booking_status == 'Confirmed' %}
+                <form method="POST" action="{{ url_for('cancel_booking', id=b.id) }}"
+                      data-confirm="Cancel Booking #{{ b.id }}?">
+                  <button type="submit" class="btn btn-danger-glass btn-sm" title="Cancel">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="10" class="text-center" style="color:var(--text-muted);padding:32px;">No bookings yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

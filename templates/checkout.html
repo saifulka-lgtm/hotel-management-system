@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Check-Out{% endblock %}
+{% block page_title %}Check-Out Process{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('booking_history') }}" class="btn btn-glass mb-4">
+  <i class="fas fa-arrow-left me-2"></i>Back to Bookings
+</a>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="glass-card mb-4">
+      <h5 style="color:var(--accent);font-family:'Playfair Display',serif;margin-bottom:20px;">
+        <i class="fas fa-sign-out-alt me-2"></i>Check-Out — Booking #{{ booking.id }}
+      </h5>
+
+      <!-- Booking Summary -->
+      <div style="background:rgba(200,151,58,0.05);border:1px solid rgba(200,151,58,0.15);border-radius:12px;padding:16px;margin-bottom:20px;">
+        <div class="row g-2" style="font-size:0.88rem;">
+          <div class="col-6 text-muted">Guest</div>
+          <div class="col-6 text-end" style="font-weight:600;">{{ booking.customer.full_name }}</div>
+          <div class="col-6 text-muted">Phone</div>
+          <div class="col-6 text-end">{{ booking.customer.phone }}</div>
+          <div class="col-6 text-muted">Room</div>
+          <div class="col-6 text-end">{{ booking.room.room_number }} ({{ booking.room.room_type }} · {{ booking.room.ac_type }})</div>
+          <div class="col-6 text-muted">Check-in</div>
+          <div class="col-6 text-end">{{ booking.checkin_date.strftime('%d %b %Y') }}</div>
+          <div class="col-6 text-muted">Check-out</div>
+          <div class="col-6 text-end">{{ booking.checkout_date.strftime('%d %b %Y') }}</div>
+          <div class="col-6 text-muted">Nights</div>
+          <div class="col-6 text-end">{{ (booking.checkout_date - booking.checkin_date).days }}</div>
+          <div class="col-6 text-muted">Rate/Night</div>
+          <div class="col-6 text-end">৳{{ "{:,.0f}".format(booking.room.price) }}</div>
+          <hr style="border-color:rgba(200,151,58,0.2);margin:8px 0;">
+          <div class="col-6" style="font-weight:700;color:var(--accent);">Total Bill</div>
+          <div class="col-6 text-end" style="font-size:1.1rem;font-weight:700;color:var(--accent);">
+            ৳{{ "{:,.0f}".format(booking.total_amount) }}
+          </div>
+          {% if booking.payment and booking.payment.paid_amount > 0 %}
+          <div class="col-6 text-muted">Already Paid</div>
+          <div class="col-6 text-end" style="color:var(--success);">৳{{ "{:,.0f}".format(booking.payment.paid_amount) }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Payment Form -->
+      <form method="POST" action="{{ url_for('checkout', id=booking.id) }}">
+        <div class="mb-3">
+          <label class="form-label">Amount to Collect (৳)</label>
+          <input type="number" name="paid_amount" id="checkoutPaid" class="form-control form-control-glass"
+                 min="0" step="0.01"
+                 value="{{ booking.payment.due_amount if booking.payment else booking.total_amount }}"
+                 required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Payment Method</label>
+          <select name="payment_method" class="form-select form-control-glass">
+            <option>Cash</option>
+            <option>Card</option>
+            <option>Mobile Banking</option>
+            <option>Bank Transfer</option>
+          </select>
+        </div>
+
+        <!-- Due Preview -->
+        <div id="checkoutTotalAmt" data-total="{{ booking.payment.due_amount if booking.payment else booking.total_amount }}"
+             style="background:rgba(248,81,73,0.07);border:1px solid rgba(248,81,73,0.2);border-radius:10px;padding:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:0.85rem;color:var(--text-muted);">Remaining Due</span>
+          <span id="checkoutDue" style="font-size:1rem;font-weight:700;color:var(--danger);">
+            ৳{{ "{:,.0f}".format(booking.payment.due_amount if booking.payment else booking.total_amount) }}
+          </span>
+        </div>
+
+        <button type="submit" class="btn btn-gold w-100" style="padding:12px;">
+          <i class="fas fa-check me-2"></i>Complete Check-Out & Generate Invoice
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
