@@ -18,8 +18,8 @@
         <i class="fas fa-hotel" style="color:#0d1117;font-size:16px;"></i>
       </div>
       <div>
-        <div style="font-family:'Playfair Display',serif;color:var(--accent);font-size:1rem;line-height:1;">Smart Hotel BD</div>
-        <div style="font-size:0.7rem;color:var(--text-muted);">Bangladesh</div>
+        <div style="font-family:'Playfair Display',serif;color:var(--accent);font-size:1rem;line-height:1;">Enterprise Hospitality Platform</div>
+        <div style="font-size:0.7rem;color:var(--text-muted);">International</div>
       </div>
     </div>
     <a href="{{ url_for('login') }}" class="btn btn-glass btn-sm">
@@ -150,80 +150,81 @@
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 
 <!-- ✅ FIX: Wrapped in {} block scope to avoid variable conflicts with app.js -->
+
 <script>
-{
-  const checkinInput  = document.getElementById('checkin_date');
-  const checkoutInput = document.getElementById('checkout_date');
-  const roomSelect    = document.getElementById('room_id');
-  const submitBtn     = document.getElementById('submitBtn');
-  const loadingMsg    = document.getElementById('roomLoadingMsg');
-  const roomsCard     = document.getElementById('availableRoomsCard');
-  const roomsGrid     = document.getElementById('availableRoomsGrid');
-  const roomCountEl   = document.getElementById('roomCount');
-  const noRoomsMsg    = document.getElementById('noRoomsMsg');
-  const nightsDisplay = document.getElementById('nightsDisplay');
-  const totalDisplay  = document.getElementById('totalDisplay');
+  {
+    const checkinInput = document.getElementById('checkin_date');
+    const checkoutInput = document.getElementById('checkout_date');
+    const roomSelect = document.getElementById('room_id');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingMsg = document.getElementById('roomLoadingMsg');
+    const roomsCard = document.getElementById('availableRoomsCard');
+    const roomsGrid = document.getElementById('availableRoomsGrid');
+    const roomCountEl = document.getElementById('roomCount');
+    const noRoomsMsg = document.getElementById('noRoomsMsg');
+    const nightsDisplay = document.getElementById('nightsDisplay');
+    const totalDisplay = document.getElementById('totalDisplay');
 
-  function updatePriceDisplay() {
-    const ci  = checkinInput.value;
-    const co  = checkoutInput.value;
-    const opt = roomSelect.options[roomSelect.selectedIndex];
-    if (!ci || !co || !opt || !opt.dataset.price) {
-      nightsDisplay.textContent = '—';
-      totalDisplay.textContent  = '৳0';
-      return;
-    }
-    const nights = Math.round((new Date(co) - new Date(ci)) / 86400000);
-    const price  = parseFloat(opt.dataset.price);
-    nightsDisplay.textContent = nights + (nights === 1 ? ' night' : ' nights');
-    totalDisplay.textContent  = '৳' + Math.round(nights * price).toLocaleString();
-  }
-
-  async function loadAvailableRooms() {
-    const ci = checkinInput.value;
-    const co = checkoutInput.value;
-
-    roomSelect.innerHTML    = '<option value="">— Select check-in & check-out dates first —</option>';
-    roomSelect.disabled     = true;
-    submitBtn.disabled      = true;
-    roomsCard.style.display = 'none';
-    noRoomsMsg.style.display = 'block';
-    noRoomsMsg.querySelector('p').textContent = 'Select your check-in and check-out dates above to see available rooms.';
-
-    if (!ci || !co) return;
-    if (new Date(co) <= new Date(ci)) {
-      noRoomsMsg.querySelector('p').textContent = 'Check-out date must be after check-in date.';
-      return;
+    function updatePriceDisplay() {
+      const ci = checkinInput.value;
+      const co = checkoutInput.value;
+      const opt = roomSelect.options[roomSelect.selectedIndex];
+      if (!ci || !co || !opt || !opt.dataset.price) {
+        nightsDisplay.textContent = '—';
+        totalDisplay.textContent = '৳0';
+        return;
+      }
+      const nights = Math.round((new Date(co) - new Date(ci)) / 86400000);
+      const price = parseFloat(opt.dataset.price);
+      nightsDisplay.textContent = nights + (nights === 1 ? ' night' : ' nights');
+      totalDisplay.textContent = '৳' + Math.round(nights * price).toLocaleString();
     }
 
-    loadingMsg.style.display = 'block';
+    async function loadAvailableRooms() {
+      const ci = checkinInput.value;
+      const co = checkoutInput.value;
 
-    try {
-      const res   = await fetch(`/api/available-rooms?checkin=${ci}&checkout=${co}`);
-      const rooms = await res.json();
-      loadingMsg.style.display = 'none';
+      roomSelect.innerHTML = '<option value="">— Select check-in & check-out dates first —</option>';
+      roomSelect.disabled = true;
+      submitBtn.disabled = true;
+      roomsCard.style.display = 'none';
+      noRoomsMsg.style.display = 'block';
+      noRoomsMsg.querySelector('p').textContent = 'Select your check-in and check-out dates above to see available rooms.';
 
-      if (rooms.length === 0) {
-        roomSelect.innerHTML = '<option value="">— No rooms available for these dates —</option>';
-        noRoomsMsg.querySelector('p').textContent = 'No rooms are available for the selected dates. Please try different dates.';
-        noRoomsMsg.style.display = 'block';
+      if (!ci || !co) return;
+      if (new Date(co) <= new Date(ci)) {
+        noRoomsMsg.querySelector('p').textContent = 'Check-out date must be after check-in date.';
         return;
       }
 
-      roomSelect.innerHTML = '<option value="">— Choose an available room —</option>';
-      rooms.forEach(r => {
-        const opt       = document.createElement('option');
-        opt.value       = r.id;
-        opt.dataset.price = r.price;
-        opt.textContent = `Room ${r.room_number} — ${r.room_type} · ${r.ac_type} — ৳${Math.round(r.price).toLocaleString()}/night`;
-        roomSelect.appendChild(opt);
-      });
-      roomSelect.disabled = false;
-      submitBtn.disabled  = false;
+      loadingMsg.style.display = 'block';
 
-      roomsGrid.innerHTML = '';
-      rooms.forEach(r => {
-        roomsGrid.insertAdjacentHTML('beforeend', `
+      try {
+        const res = await fetch(`/api/available-rooms?checkin=${ci}&checkout=${co}`);
+        const rooms = await res.json();
+        loadingMsg.style.display = 'none';
+
+        if (rooms.length === 0) {
+          roomSelect.innerHTML = '<option value="">— No rooms available for these dates —</option>';
+          noRoomsMsg.querySelector('p').textContent = 'No rooms are available for the selected dates. Please try different dates.';
+          noRoomsMsg.style.display = 'block';
+          return;
+        }
+
+        roomSelect.innerHTML = '<option value="">— Choose an available room —</option>';
+        rooms.forEach(r => {
+          const opt = document.createElement('option');
+          opt.value = r.id;
+          opt.dataset.price = r.price;
+          opt.textContent = `Room ${r.room_number} — ${r.room_type} · ${r.ac_type} — ৳${Math.round(r.price).toLocaleString()}/night`;
+          roomSelect.appendChild(opt);
+        });
+        roomSelect.disabled = false;
+        submitBtn.disabled = false;
+
+        roomsGrid.innerHTML = '';
+        rooms.forEach(r => {
+          roomsGrid.insertAdjacentHTML('beforeend', `
           <div class="col-sm-6 col-md-4">
             <div class="room-card">
               <div class="room-number">${r.room_number}</div>
@@ -232,36 +233,30 @@
               <div class="mt-2"><span class="badge-glass badge-available">Available</span></div>
             </div>
           </div>`);
-      });
-      roomCountEl.textContent  = rooms.length;
-      roomsCard.style.display  = 'block';
-      noRoomsMsg.style.display = 'none';
+        });
+        roomCountEl.textContent = rooms.length;
+        roomsCard.style.display = 'block';
+        noRoomsMsg.style.display = 'none';
 
-    } catch (err) {
-      loadingMsg.style.display = 'none';
-      roomSelect.innerHTML     = '<option value="">— Error loading rooms, please retry —</option>';
+      } catch (err) {
+        loadingMsg.style.display = 'none';
+        roomSelect.innerHTML = '<option value="">— Error loading rooms, please retry —</option>';
+      }
+
+      updatePriceDisplay();
     }
 
-    updatePriceDisplay();
+    checkinInput.addEventListener('change', () => {
+      if (checkoutInput.value && new Date(checkoutInput.value) <= new Date(checkinInput.value)) {
+        const nextDay = new Date(checkinInput.value);
+        nextDay.setDate(nextDay.getDate() + 1);
+        checkoutInput.value = nextDay.toISOString().split('T')[0];
+      }
+      checkoutInput.min = checkinInput.value;
+      loadAvailableRooms();
+    });
+
+    checkoutInput.addEventListener('change', loadAvailableRooms);
+    roomSelect.addEventListener('change', updatePriceDisplay);
   }
-
-  checkinInput.addEventListener('change', () => {
-    if (checkoutInput.value && new Date(checkoutInput.value) <= new Date(checkinInput.value)) {
-      const nextDay = new Date(checkinInput.value);
-      nextDay.setDate(nextDay.getDate() + 1);
-      checkoutInput.value = nextDay.toISOString().split('T')[0];
-    }
-    checkoutInput.min = checkinInput.value;
-    loadAvailableRooms();
-  });
-  checkoutInput.addEventListener('change', loadAvailableRooms);
-  roomSelect.addEventListener('change', updatePriceDisplay);
-}
-<div class="text-center mt-3">
-  <a href="{{ url_for('my_booking') }}" style="color:var(--text-muted);font-size:0.85rem;">
-    <i class="fas fa-search me-1"></i> Already booked? Check your booking status
-  </a>
-</div>
 </script>
-</body>
-</html>

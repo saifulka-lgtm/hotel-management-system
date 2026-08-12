@@ -101,12 +101,16 @@ swagger_template = {
         }
     },
     'tags': [
-        {'name': 'Auth',      'description': 'Login, logout, token management'},
-        {'name': 'Rooms',     'description': 'Room availability and management'},
-        {'name': 'Bookings',  'description': 'Booking operations'},
-        {'name': 'Customers', 'description': 'Customer management'},
-        {'name': 'Payments',  'description': 'Payment operations'},
-        {'name': 'Reports',   'description': 'Revenue and financial reports'},
+        {'name': 'Auth',       'description': 'Login, logout, token management'},
+        {'name': 'Rooms',      'description': 'Room availability and management'},
+        {'name': 'Bookings',   'description': 'Booking operations'},
+        {'name': 'Customers',  'description': 'Customer management'},
+        {'name': 'Payments',   'description': 'Payment operations'},
+        {'name': 'Reports',    'description': 'Revenue and financial reports'},
+        {'name': 'Menu',       'description': 'Restaurant menu management'},
+        {'name': 'Restaurant', 'description': 'Restaurant table and order management'},
+        {'name': 'Delivery',   'description': 'Delivery order management'},
+        {'name': 'Notifications', 'description': 'In-app notifications'},
     ]
 }
 
@@ -120,6 +124,19 @@ from models.booking  import Booking
 from models.payment  import Payment
 from models.checkin  import CheckIn
 from models.checkout import CheckOut
+from models.role import Role, seed_roles
+from models.permission import Permission, seed_permissions
+from models.employee import Employee
+from models.menu import MenuItem
+from models.restaurant import RestaurantTable, RestaurantOrder, RestaurantOrderItem, WaiterAssignment
+from models.delivery import DeliveryOrder, DeliveryOrderItem, DeliveryTracking
+from models.supplier import Supplier
+from models.inventory import InventoryItem, StockMovement
+from models.notification import Notification, notify
+from models.housekeeping import HousekeepingTask
+
+# ── Utils (RBAC) ──────────────────────────────────────────────────────────────
+from utils.auth_decorators import module_required
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -134,6 +151,27 @@ def seed_db():
         ))
         db.session.commit()
         print("✅  Admin created  →  admin / admin123")
+
+    seed_roles()
+    seed_permissions()
+
+    admin = Admin.query.filter_by(username='admin').first()
+    if admin and not admin.role_id:
+        admin_role = Role.query.filter_by(name='admin').first()
+        if admin_role:
+            admin.role_id = admin_role.id
+            db.session.commit()
+            print(f"✅  Admin assigned role: {admin_role.name}")
+
+    if admin and not admin.employee_profile:
+        db.session.add(Employee(
+            admin_id=admin.id,
+            full_name='System Administrator',
+            department='Admin',
+            designation='Admin'
+        ))
+        db.session.commit()
+        print("✅  Employee profile created for admin")
 
     if not Room.query.first():
         rooms = [
@@ -151,6 +189,30 @@ def seed_db():
         db.session.add_all(rooms)
         db.session.commit()
         print("✅  10 rooms inserted")
+
+    if not MenuItem.query.first():
+        menu_items = [
+            MenuItem(name='Chicken Biryani', category='Main',   price=280, description='Classic Dhaka-style biryani'),
+            MenuItem(name='Beef Tehari',      category='Main',   price=250, description='Spicy beef tehari'),
+            MenuItem(name='Vegetable Curry',  category='Main',   price=150, description='Mixed vegetable curry'),
+            MenuItem(name='Mutton Rezala',    category='Main',   price=350, description='Rich mutton rezala'),
+            MenuItem(name='Borhani',          category='Drink',  price=50,  description='Traditional yogurt drink'),
+            MenuItem(name='Firni',            category='Dessert', price=80, description='Rice pudding dessert'),
+        ]
+        db.session.add_all(menu_items)
+        db.session.commit()
+        print("✅  6 menu items inserted")
+
+    if not RestaurantTable.query.first():
+        tables = [
+            RestaurantTable(table_number='T1', capacity=2),
+            RestaurantTable(table_number='T2', capacity=4),
+            RestaurantTable(table_number='T3', capacity=4),
+            RestaurantTable(table_number='T4', capacity=6),
+        ]
+        db.session.add_all(tables)
+        db.session.commit()
+        print("✅  4 restaurant tables inserted")
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def today():
@@ -347,6 +409,66 @@ def customer_history(id):
     c = Customer.query.get_or_404(id)
     return render_template('customer_history.html', customer=c)
 
+# ── Employees API ────────────────────────────────────────────────────────────
+@app.route('/api/employees', methods=['GET'])
+@jwt_required()
+def api_employees():
+    employees = Employee.query.all()
+    return jsonify([e.to_dict() for e in employees])
+
+
+@app.route('/api/employees', methods=['POST'])
+@jwt_required()
+@module_required('staff_management')
+def api_create_employee():
+    data = request.get_json() or {}
+    required = ['admin_id', 'full_name']
+    for f in required:
+        if not data.get(f):
+            return jsonify({'error': f'{f} is required'}), 400
+
+    admin = Admin.query.get(data['admin_id'])
+    if not admin:
+        return jsonify({'error': 'Admin not found'}), 404
+    if admin.employee_profile:
+        return jsonify({'error': 'This admin already has an employee profile'}), 400
+
+    emp = Employee(
+        admin_id=admin.id,
+        full_name=data['full_name'],
+        phone=data.get('phone'),
+        department=data.get('department'),
+        designation=data.get('designation')
+    )
+    db.session.add(emp)
+    db.session.commit()
+    return jsonify(emp.to_dict()), 201
+
+# ── Menu API ─────────────────────────────────────────────────────────────────
+@app.route('/api/menu', methods=['GET'])
+def api_menu():
+    items = MenuItem.query.filter_by(is_available=True).all()
+    return jsonify([i.to_dict() for i in items])
+
+
+@app.route('/api/menu', methods=['POST'])
+@jwt_required()
+@module_required('restaurant')
+def api_create_menu_item():
+    data = request.get_json()
+    if not data or not data.get('name') or not data.get('price'):
+        return jsonify({'error': 'name and price are required'}), 400
+    item = MenuItem(
+        name=data['name'].strip(),
+        category=data.get('category'),
+        price=float(data['price']),
+        description=data.get('description', ''),
+        image_url=data.get('image_url', '')
+    )
+    db.session.add(item)
+    db.session.commit()
+    return jsonify(item.to_dict()), 201
+
 # ── Booking ───────────────────────────────────────────────────────────────────
 @app.route('/book-room', methods=['GET', 'POST'])
 def book_room():
@@ -404,12 +526,14 @@ def book_room():
         flash(f'Booking #{booking.id} confirmed! Total: ৳{total:,.0f}', 'success')
         return redirect(url_for('booking_confirmation', id=booking.id))
 
-    return render_template('book_room.html', today=date.today().isoformat())
+    rooms = Room.query.filter(Room.status != 'Maintenance').order_by(Room.room_number).all()
+    return render_template('book_room.html', today=date.today().isoformat(), rooms=rooms)
 
 @app.route('/booking-confirmation/<int:id>')
 def booking_confirmation(id):
     b = Booking.query.get_or_404(id)
     return render_template('booking_confirmation.html', booking=b)
+
 @app.route('/my-booking', methods=['GET', 'POST'])
 def my_booking():
     bookings = []
@@ -431,7 +555,6 @@ def cancel_my_booking(id):
     phone = request.form.get('phone', '').strip()
     b     = Booking.query.get_or_404(id)
 
-    # Security check — make sure the phone matches the booking's customer
     if not b.customer or b.customer.phone != phone:
         flash('Unauthorized action.', 'danger')
         return redirect(url_for('my_booking'))
@@ -630,16 +753,6 @@ def api_login():
     responses:
       200:
         description: Login successful
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: "Login successful"
-            access_token:
-              type: string
-            refresh_token:
-              type: string
       401:
         description: Invalid username or password
     """
@@ -672,19 +785,6 @@ def api_login():
 @app.route('/api/auth/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def api_refresh():
-    """
-    Get a new access token using refresh token
-    ---
-    tags:
-      - Auth
-    security:
-      - Bearer: []
-    responses:
-      200:
-        description: New access token issued
-      401:
-        description: Invalid or expired refresh token
-    """
     identity     = get_jwt_identity()
     access_token = create_access_token(identity=identity)
     return jsonify({'access_token': access_token}), 200
@@ -693,19 +793,6 @@ def api_refresh():
 @app.route('/api/auth/logout', methods=['DELETE'])
 @jwt_required()
 def api_logout():
-    """
-    Logout and revoke current access token
-    ---
-    tags:
-      - Auth
-    security:
-      - Bearer: []
-    responses:
-      200:
-        description: Successfully logged out
-      401:
-        description: Missing or invalid token
-    """
     jti = get_jwt()['jti']
     token_blocklist.add(jti)
     return jsonify({'message': 'Successfully logged out. Token revoked.'}), 200
@@ -714,60 +801,16 @@ def api_logout():
 @app.route('/api/auth/me', methods=['GET'])
 @jwt_required()
 def api_me():
-    """
-    Get current logged-in admin profile
-    ---
-    tags:
-      - Auth
-    security:
-      - Bearer: []
-    responses:
-      200:
-        description: Current admin profile
-      401:
-        description: Missing or invalid token
-    """
     admin_id = get_jwt_identity()
     admin    = Admin.query.get(int(admin_id))
     if not admin:
         return jsonify({'error': 'Admin not found'}), 404
-    return jsonify({'id': admin.id, 'username': admin.username}), 200
+    return jsonify(admin.to_dict()), 200
 
 
 @app.route('/api/auth/change-password', methods=['PUT'])
 @jwt_required()
 def api_change_password():
-    """
-    Change admin password
-    ---
-    tags:
-      - Auth
-    security:
-      - Bearer: []
-    parameters:
-      - in: body
-        name: body
-        required: true
-        schema:
-          type: object
-          required:
-            - current_password
-            - new_password
-          properties:
-            current_password:
-              type: string
-              example: "admin123"
-            new_password:
-              type: string
-              example: "newpassword456"
-    responses:
-      200:
-        description: Password changed successfully
-      400:
-        description: Missing fields or password too short
-      401:
-        description: Current password incorrect
-    """
     admin_id         = get_jwt_identity()
     admin            = Admin.query.get(int(admin_id))
     data             = request.get_json() or {}
@@ -788,41 +831,12 @@ def api_change_password():
 
 @app.route('/api/auth/register', methods=['POST'])
 @jwt_required()
+@module_required('staff_management')
 def api_register_admin():
-    """
-    Register a new admin (requires existing admin JWT token)
-    ---
-    tags:
-      - Auth
-    security:
-      - Bearer: []
-    parameters:
-      - in: body
-        name: body
-        required: true
-        schema:
-          type: object
-          required:
-            - username
-            - password
-          properties:
-            username:
-              type: string
-              example: "manager"
-            password:
-              type: string
-              example: "manager123"
-    responses:
-      201:
-        description: New admin created
-      400:
-        description: Username already exists or missing fields
-      401:
-        description: Not authenticated
-    """
     data     = request.get_json() or {}
     username = data.get('username', '').strip()
     password = data.get('password', '')
+    role_name = data.get('role', '')
 
     if not username or not password:
         return jsonify({'error': 'Username and password are required'}), 400
@@ -832,6 +846,12 @@ def api_register_admin():
         return jsonify({'error': f"Username '{username}' already exists"}), 400
 
     new_admin = Admin(username=username, password=generate_password_hash(password))
+
+    if role_name:
+        role = Role.query.filter_by(name=role_name).first()
+        if role:
+            new_admin.role_id = role.id
+
     db.session.add(new_admin)
     db.session.commit()
     return jsonify({'message': f"Admin {username} created", 'id': new_admin.id}), 201
@@ -843,15 +863,6 @@ def api_register_admin():
 
 @app.route('/api/rooms')
 def api_rooms():
-    """
-    Get all available rooms
-    ---
-    tags:
-      - Rooms
-    responses:
-      200:
-        description: List of all available rooms
-    """
     rooms = Room.query.filter_by(status='Available').all()
     return jsonify([{
         'id': r.id, 'room_number': r.room_number,
@@ -862,48 +873,8 @@ def api_rooms():
 
 @app.route('/api/rooms', methods=['POST'])
 @jwt_required()
+@module_required('hotel')
 def api_create_room():
-    """
-    Create a new room
-    ---
-    tags:
-      - Rooms
-    security:
-      - Bearer: []
-    parameters:
-      - in: body
-        name: body
-        required: true
-        schema:
-          type: object
-          required:
-            - room_number
-            - room_type
-            - ac_type
-            - price
-          properties:
-            room_number:
-              type: string
-              example: "301"
-            room_type:
-              type: string
-              enum: [Single, Double, Suite]
-              example: "Single"
-            ac_type:
-              type: string
-              enum: [AC, Non-AC]
-              example: "AC"
-            price:
-              type: number
-              example: 1500
-    responses:
-      201:
-        description: Room created successfully
-      400:
-        description: Missing fields or room already exists
-      401:
-        description: Unauthorized
-    """
     data = request.get_json()
     if not data:
         return jsonify({'error': 'No data provided'}), 400
@@ -929,23 +900,6 @@ def api_create_room():
 
 @app.route('/api/rooms/<int:id>', methods=['GET'])
 def api_get_room(id):
-    """
-    Get a single room by ID
-    ---
-    tags:
-      - Rooms
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-        example: 1
-    responses:
-      200:
-        description: Room details
-      404:
-        description: Room not found
-    """
     r = Room.query.get_or_404(id)
     return jsonify({
         'id': r.id, 'room_number': r.room_number,
@@ -956,50 +910,8 @@ def api_get_room(id):
 
 @app.route('/api/rooms/<int:id>', methods=['PUT'])
 @jwt_required()
+@module_required('hotel')
 def api_update_room(id):
-    """
-    Update a room
-    ---
-    tags:
-      - Rooms
-    security:
-      - Bearer: []
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-        example: 1
-      - in: body
-        name: body
-        required: true
-        schema:
-          type: object
-          properties:
-            room_number:
-              type: string
-              example: "101"
-            room_type:
-              type: string
-              example: "Double"
-            ac_type:
-              type: string
-              example: "AC"
-            price:
-              type: number
-              example: 2000
-            status:
-              type: string
-              enum: [Available, Occupied, Maintenance]
-              example: "Available"
-    responses:
-      200:
-        description: Room updated successfully
-      401:
-        description: Unauthorized
-      404:
-        description: Room not found
-    """
     r    = Room.query.get_or_404(id)
     data = request.get_json() or {}
     r.room_number = data.get('room_number', r.room_number)
@@ -1013,30 +925,8 @@ def api_update_room(id):
 
 @app.route('/api/rooms/<int:id>', methods=['DELETE'])
 @jwt_required()
+@module_required('hotel')
 def api_delete_room(id):
-    """
-    Delete a room
-    ---
-    tags:
-      - Rooms
-    security:
-      - Bearer: []
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-        example: 1
-    responses:
-      200:
-        description: Room deleted
-      400:
-        description: Room has bookings and cannot be deleted
-      401:
-        description: Unauthorized
-      404:
-        description: Room not found
-    """
     r = Room.query.get_or_404(id)
     if r.bookings:
         return jsonify({'error': 'Cannot delete room with existing bookings'}), 400
@@ -1047,45 +937,22 @@ def api_delete_room(id):
 
 @app.route('/api/available-rooms')
 def api_available_rooms():
-    """
-    Get rooms available for specific dates
-    ---
-    tags:
-      - Rooms
-    parameters:
-      - name: checkin
-        in: query
-        type: string
-        required: true
-        example: "2026-07-01"
-      - name: checkout
-        in: query
-        type: string
-        required: true
-        example: "2026-07-05"
-    responses:
-      200:
-        description: List of available rooms for selected dates
-      400:
-        description: Invalid or missing dates
-    """
-    checkin_str  = request.args.get('checkin')
+    checkin_str = request.args.get('checkin')
     checkout_str = request.args.get('checkout')
+
     try:
         ci = datetime.strptime(checkin_str, '%Y-%m-%d').date()
         co = datetime.strptime(checkout_str, '%Y-%m-%d').date()
-    except (ValueError, TypeError):
-        return jsonify({'error': 'Invalid dates. Use YYYY-MM-DD format.'}), 400
+    except Exception:
+        return jsonify({"error": "Invalid dates"}), 400
 
-    if co <= ci:
-        return jsonify({'error': 'Check-out must be after check-in.'}), 400
-
-    rooms     = Room.query.filter(Room.status != 'Maintenance').all()
+    rooms = Room.query.filter(Room.status != "Maintenance").all()
     available = [r for r in rooms if is_room_available(r.id, ci, co)]
+
     return jsonify([{
-        'id': r.id, 'room_number': r.room_number,
-        'room_type': r.room_type, 'ac_type': r.ac_type,
-        'price': r.price
+        "id": r.id, "room_number": r.room_number,
+        "room_type": r.room_type, "ac_type": r.ac_type,
+        "price": float(r.price)
     } for r in available])
 
 
@@ -1096,19 +963,6 @@ def api_available_rooms():
 @app.route('/api/customers')
 @jwt_required()
 def api_customers():
-    """
-    Get all customers
-    ---
-    tags:
-      - Customers
-    security:
-      - Bearer: []
-    responses:
-      200:
-        description: List of all customers
-      401:
-        description: Unauthorized
-    """
     customers = Customer.query.all()
     return jsonify([{
         'id': c.id, 'full_name': c.full_name,
@@ -1119,47 +973,8 @@ def api_customers():
 
 @app.route('/api/customers', methods=['POST'])
 @jwt_required()
+@module_required('hotel')
 def api_create_customer():
-    """
-    Create a new customer
-    ---
-    tags:
-      - Customers
-    security:
-      - Bearer: []
-    parameters:
-      - in: body
-        name: body
-        required: true
-        schema:
-          type: object
-          required:
-            - full_name
-            - phone
-          properties:
-            full_name:
-              type: string
-              example: "Md. Syful Islam"
-            phone:
-              type: string
-              example: "+8801712345678"
-            email:
-              type: string
-              example: "syful@example.com"
-            nid_passport:
-              type: string
-              example: "1234567890"
-            address:
-              type: string
-              example: "Dhaka, Bangladesh"
-    responses:
-      201:
-        description: Customer created
-      400:
-        description: Missing required fields
-      401:
-        description: Unauthorized
-    """
     data = request.get_json()
     if not data:
         return jsonify({'error': 'No data provided'}), 400
@@ -1181,27 +996,6 @@ def api_create_customer():
 @app.route('/api/customers/<int:id>', methods=['GET'])
 @jwt_required()
 def api_get_customer(id):
-    """
-    Get a single customer by ID
-    ---
-    tags:
-      - Customers
-    security:
-      - Bearer: []
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-        example: 1
-    responses:
-      200:
-        description: Customer details with booking history
-      401:
-        description: Unauthorized
-      404:
-        description: Customer not found
-    """
     c = Customer.query.get_or_404(id)
     return jsonify({
         'id': c.id, 'full_name': c.full_name,
@@ -1221,49 +1015,8 @@ def api_get_customer(id):
 
 @app.route('/api/customers/<int:id>', methods=['PUT'])
 @jwt_required()
+@module_required('hotel')
 def api_update_customer(id):
-    """
-    Update a customer
-    ---
-    tags:
-      - Customers
-    security:
-      - Bearer: []
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-        example: 1
-      - in: body
-        name: body
-        required: true
-        schema:
-          type: object
-          properties:
-            full_name:
-              type: string
-              example: "Md. Syful Islam Bhuiyan"
-            phone:
-              type: string
-              example: "+8801712345678"
-            email:
-              type: string
-              example: "new@example.com"
-            nid_passport:
-              type: string
-              example: "9876543210"
-            address:
-              type: string
-              example: "Chittagong, Bangladesh"
-    responses:
-      200:
-        description: Customer updated
-      401:
-        description: Unauthorized
-      404:
-        description: Customer not found
-    """
     c    = Customer.query.get_or_404(id)
     data = request.get_json() or {}
     c.full_name    = data.get('full_name',    c.full_name).strip()
@@ -1277,28 +1030,8 @@ def api_update_customer(id):
 
 @app.route('/api/customers/<int:id>', methods=['DELETE'])
 @jwt_required()
+@module_required('hotel')
 def api_delete_customer(id):
-    """
-    Delete a customer
-    ---
-    tags:
-      - Customers
-    security:
-      - Bearer: []
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-        example: 1
-    responses:
-      200:
-        description: Customer deleted
-      401:
-        description: Unauthorized
-      404:
-        description: Customer not found
-    """
     c = Customer.query.get_or_404(id)
     db.session.delete(c)
     db.session.commit()
@@ -1312,19 +1045,6 @@ def api_delete_customer(id):
 @app.route('/api/bookings')
 @jwt_required()
 def api_bookings():
-    """
-    Get all bookings
-    ---
-    tags:
-      - Bookings
-    security:
-      - Bearer: []
-    responses:
-      200:
-        description: List of all bookings
-      401:
-        description: Unauthorized
-    """
     bookings = Booking.query.order_by(Booking.created_at.desc()).all()
     return jsonify([{
         'id': b.id,
@@ -1339,48 +1059,8 @@ def api_bookings():
 
 @app.route('/api/bookings', methods=['POST'])
 @jwt_required()
+@module_required('hotel')
 def api_create_booking():
-    """
-    Create a new booking
-    ---
-    tags:
-      - Bookings
-    security:
-      - Bearer: []
-    parameters:
-      - in: body
-        name: body
-        required: true
-        schema:
-          type: object
-          required:
-            - customer_id
-            - room_id
-            - checkin_date
-            - checkout_date
-          properties:
-            customer_id:
-              type: integer
-              example: 1
-            room_id:
-              type: integer
-              example: 2
-            checkin_date:
-              type: string
-              example: "2026-07-10"
-            checkout_date:
-              type: string
-              example: "2026-07-15"
-    responses:
-      201:
-        description: Booking created
-      400:
-        description: Invalid data or room not available
-      401:
-        description: Unauthorized
-      404:
-        description: Customer or room not found
-    """
     data = request.get_json()
     if not data:
         return jsonify({'error': 'No data provided'}), 400
@@ -1433,27 +1113,6 @@ def api_create_booking():
 @app.route('/api/bookings/<int:id>', methods=['GET'])
 @jwt_required()
 def api_get_booking(id):
-    """
-    Get a single booking by ID
-    ---
-    tags:
-      - Bookings
-    security:
-      - Bearer: []
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-        example: 1
-    responses:
-      200:
-        description: Booking details
-      401:
-        description: Unauthorized
-      404:
-        description: Booking not found
-    """
     b = Booking.query.get_or_404(id)
     return jsonify({
         'id': b.id,
@@ -1473,30 +1132,8 @@ def api_get_booking(id):
 
 @app.route('/api/bookings/<int:id>/cancel', methods=['PUT'])
 @jwt_required()
+@module_required('hotel')
 def api_cancel_booking(id):
-    """
-    Cancel a booking
-    ---
-    tags:
-      - Bookings
-    security:
-      - Bearer: []
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-        example: 1
-    responses:
-      200:
-        description: Booking cancelled
-      400:
-        description: Already completed or cancelled
-      401:
-        description: Unauthorized
-      404:
-        description: Booking not found
-    """
     b = Booking.query.get_or_404(id)
     if b.booking_status in ['Completed', 'Cancelled']:
         return jsonify({'error': f'Cannot cancel a {b.booking_status} booking'}), 400
@@ -1508,30 +1145,8 @@ def api_cancel_booking(id):
 
 @app.route('/api/bookings/<int:id>/checkin', methods=['PUT'])
 @jwt_required()
+@module_required('hotel')
 def api_checkin(id):
-    """
-    Check in a guest
-    ---
-    tags:
-      - Bookings
-    security:
-      - Bearer: []
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-        example: 1
-    responses:
-      200:
-        description: Guest checked in successfully
-      400:
-        description: Already checked in or booking cancelled
-      401:
-        description: Unauthorized
-      404:
-        description: Booking not found
-    """
     b = Booking.query.get_or_404(id)
     if b.checkin:
         return jsonify({'error': 'Guest already checked in'}), 400
@@ -1546,43 +1161,8 @@ def api_checkin(id):
 
 @app.route('/api/bookings/<int:id>/checkout', methods=['PUT'])
 @jwt_required()
+@module_required('hotel')
 def api_checkout(id):
-    """
-    Check out a guest and record payment
-    ---
-    tags:
-      - Bookings
-    security:
-      - Bearer: []
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-        example: 1
-      - in: body
-        name: body
-        required: true
-        schema:
-          type: object
-          properties:
-            paid_amount:
-              type: number
-              example: 7500
-            payment_method:
-              type: string
-              enum: [Cash, Card, bKash, Nagad]
-              example: "Cash"
-    responses:
-      200:
-        description: Guest checked out and payment recorded
-      400:
-        description: Guest not checked in or already checked out
-      401:
-        description: Unauthorized
-      404:
-        description: Booking not found
-    """
     b = Booking.query.get_or_404(id)
     if not b.checkin:
         return jsonify({'error': 'Guest has not checked in yet'}), 400
@@ -1625,19 +1205,6 @@ def api_checkout(id):
 @app.route('/api/payments')
 @jwt_required()
 def api_payments():
-    """
-    Get all payments
-    ---
-    tags:
-      - Payments
-    security:
-      - Bearer: []
-    responses:
-      200:
-        description: List of all payments
-      401:
-        description: Unauthorized
-    """
     payments = Payment.query.order_by(Payment.created_at.desc()).all()
     return jsonify([{
         'id': p.id, 'booking_id': p.booking_id,
@@ -1649,27 +1216,6 @@ def api_payments():
 @app.route('/api/payments/<int:id>', methods=['GET'])
 @jwt_required()
 def api_get_payment(id):
-    """
-    Get a single payment by ID
-    ---
-    tags:
-      - Payments
-    security:
-      - Bearer: []
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-        example: 1
-    responses:
-      200:
-        description: Payment details
-      401:
-        description: Unauthorized
-      404:
-        description: Payment not found
-    """
     p = Payment.query.get_or_404(id)
     return jsonify({
         'id': p.id, 'booking_id': p.booking_id,
@@ -1681,43 +1227,8 @@ def api_get_payment(id):
 
 @app.route('/api/payments/<int:id>', methods=['PUT'])
 @jwt_required()
+@module_required('hotel')
 def api_update_payment(id):
-    """
-    Add payment to an existing booking payment record
-    ---
-    tags:
-      - Payments
-    security:
-      - Bearer: []
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-        example: 1
-      - in: body
-        name: body
-        required: true
-        schema:
-          type: object
-          required:
-            - paid_amount
-          properties:
-            paid_amount:
-              type: number
-              example: 5000
-            payment_method:
-              type: string
-              enum: [Cash, Card, bKash, Nagad]
-              example: "bKash"
-    responses:
-      200:
-        description: Payment updated
-      401:
-        description: Unauthorized
-      404:
-        description: Payment not found
-    """
     p            = Payment.query.get_or_404(id)
     data         = request.get_json() or {}
     additional   = float(data.get('paid_amount', 0))
@@ -1741,19 +1252,6 @@ def api_update_payment(id):
 @app.route('/api/reports/summary')
 @jwt_required()
 def api_reports_summary():
-    """
-    Get financial summary report
-    ---
-    tags:
-      - Reports
-    security:
-      - Bearer: []
-    responses:
-      200:
-        description: Revenue and booking summary
-      401:
-        description: Unauthorized
-    """
     td  = date.today()
     ms  = td.replace(day=1)
 
@@ -1779,28 +1277,6 @@ def api_reports_summary():
 @app.route('/api/reports/daily')
 @jwt_required()
 def api_daily_report():
-    """
-    Get revenue for a specific date
-    ---
-    tags:
-      - Reports
-    security:
-      - Bearer: []
-    parameters:
-      - name: date
-        in: query
-        type: string
-        required: false
-        description: Date in YYYY-MM-DD format (defaults to today)
-        example: "2026-05-08"
-    responses:
-      200:
-        description: Daily revenue report
-      400:
-        description: Invalid date format
-      401:
-        description: Unauthorized
-    """
     date_str = request.args.get('date', date.today().isoformat())
     try:
         selected = datetime.strptime(date_str, '%Y-%m-%d').date()
@@ -1824,28 +1300,6 @@ def api_daily_report():
 @app.route('/api/reports/monthly')
 @jwt_required()
 def api_monthly_report():
-    """
-    Get revenue for a specific month
-    ---
-    tags:
-      - Reports
-    security:
-      - Bearer: []
-    parameters:
-      - name: month
-        in: query
-        type: string
-        required: false
-        description: Month in YYYY-MM format (defaults to current month)
-        example: "2026-05"
-    responses:
-      200:
-        description: Monthly revenue report
-      400:
-        description: Invalid month format
-      401:
-        description: Unauthorized
-    """
     month_str = request.args.get('month', date.today().strftime('%Y-%m'))
     try:
         ms = datetime.strptime(month_str, '%Y-%m').date().replace(day=1)
@@ -1879,6 +1333,461 @@ def api_monthly_report():
         'paid_count': paid_count,
         'due_count': due_count
     })
+
+
+@app.route('/api/reports/business-summary', methods=['GET'])
+@jwt_required()
+def api_business_summary():
+    hotel_revenue = db.session.query(func.coalesce(func.sum(Payment.paid_amount), 0)).scalar() or 0
+
+    restaurant_revenue = db.session.query(
+        func.coalesce(func.sum(RestaurantOrder.total_amount), 0)
+    ).filter(RestaurantOrder.status == 'billed').scalar() or 0
+
+    delivery_revenue = db.session.query(
+        func.coalesce(func.sum(DeliveryOrder.total_amount), 0)
+    ).filter(DeliveryOrder.status == 'delivered').scalar() or 0
+
+    return jsonify({
+        'hotel_revenue': float(hotel_revenue),
+        'restaurant_revenue': float(restaurant_revenue),
+        'delivery_revenue': float(delivery_revenue),
+        'total_revenue': float(hotel_revenue) + float(restaurant_revenue) + float(delivery_revenue),
+        'restaurant_orders_count': RestaurantOrder.query.count(),
+        'delivery_orders_count': DeliveryOrder.query.count(),
+        'pending_restaurant_orders': RestaurantOrder.query.filter(
+            RestaurantOrder.status != 'billed'
+        ).count(),
+        'pending_delivery_orders': DeliveryOrder.query.filter(
+            DeliveryOrder.status.notin_(['delivered', 'cancelled'])
+        ).count(),
+    })
+
+
+# =============================================================================
+# ── API: RESTAURANT ───────────────────────────────────────────────────────────
+# =============================================================================
+
+@app.route('/api/restaurant/tables', methods=['GET'])
+def api_restaurant_tables():
+    tables = RestaurantTable.query.all()
+    return jsonify([t.to_dict() for t in tables])
+
+
+@app.route('/api/restaurant/orders', methods=['POST'])
+@jwt_required()
+@module_required('restaurant')
+def api_create_restaurant_order():
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    table_id = data.get('table_id')
+    items = data.get('items', [])
+    customer_name = data.get('customer_name', '')
+
+    if not items:
+        return jsonify({'error': 'At least one item is required'}), 400
+
+    table = None
+    if table_id:
+        table = RestaurantTable.query.get(table_id)
+        if not table:
+            return jsonify({'error': 'Table not found'}), 404
+
+    order = RestaurantOrder(table_id=table_id, customer_name=customer_name)
+    db.session.add(order)
+    db.session.flush()
+
+    total = 0
+    for it in items:
+        menu_item = MenuItem.query.get(it.get('menu_item_id'))
+        if not menu_item:
+            continue
+        qty = int(it.get('quantity', 1))
+        db.session.add(RestaurantOrderItem(
+            order_id=order.id,
+            menu_item_id=menu_item.id,
+            quantity=qty,
+            price_at_order=menu_item.price
+        ))
+        total += menu_item.price * qty
+
+    order.total_amount = total
+
+    if table:
+        table.status = 'occupied'
+
+    db.session.commit()
+    return jsonify(order.to_dict()), 201
+
+
+@app.route('/api/restaurant/orders', methods=['GET'])
+@jwt_required()
+@module_required('restaurant')
+def api_list_restaurant_orders():
+    orders = RestaurantOrder.query.order_by(RestaurantOrder.created_at.desc()).all()
+    return jsonify([o.to_dict() for o in orders])
+
+
+@app.route('/api/restaurant/orders/<int:id>', methods=['GET'])
+@jwt_required()
+@module_required('restaurant')
+def api_get_restaurant_order(id):
+    order = RestaurantOrder.query.get_or_404(id)
+    return jsonify(order.to_dict())
+
+
+@app.route('/api/restaurant/orders/<int:id>/status', methods=['PUT'])
+@jwt_required()
+@module_required('restaurant_kitchen')
+def api_update_restaurant_order_status(id):
+    order = RestaurantOrder.query.get_or_404(id)
+    data = request.get_json() or {}
+    new_status = data.get('status')
+
+    valid_statuses = ['placed', 'preparing', 'ready', 'served', 'billed']
+    if new_status not in valid_statuses:
+        return jsonify({'error': f'status must be one of {valid_statuses}'}), 400
+
+    order.status = new_status
+
+    if new_status == 'billed' and order.table:
+        order.table.status = 'available'
+
+    new_notification = Notification(
+        title=f'Restaurant Order #{order.id} Update',
+        message=f'Order status changed to "{new_status}"',
+        category='order'
+    )
+    db.session.add(new_notification)
+
+    db.session.commit()
+    return jsonify(order.to_dict())
+
+
+# =============================================================================
+# ── API: DELIVERY ─────────────────────────────────────────────────────────────
+# =============================================================================
+
+@app.route('/api/delivery/orders', methods=['POST'])
+@jwt_required()
+@module_required('delivery')
+def api_create_delivery_order():
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    customer_id = data.get('customer_id')
+    address = data.get('address')
+    items = data.get('items', [])
+
+    if not customer_id or not address:
+        return jsonify({'error': 'customer_id and address are required'}), 400
+    if not items:
+        return jsonify({'error': 'At least one item is required'}), 400
+
+    customer = Customer.query.get(customer_id)
+    if not customer:
+        return jsonify({'error': 'Customer not found'}), 404
+
+    order = DeliveryOrder(customer_id=customer_id, address=address)
+    db.session.add(order)
+    db.session.flush()
+
+    total = 0
+    for it in items:
+        menu_item = MenuItem.query.get(it.get('menu_item_id'))
+        if not menu_item:
+            continue
+        qty = int(it.get('quantity', 1))
+        db.session.add(DeliveryOrderItem(
+            order_id=order.id,
+            menu_item_id=menu_item.id,
+            quantity=qty,
+            price_at_order=menu_item.price
+        ))
+        total += menu_item.price * qty
+
+    order.total_amount = total
+    db.session.add(DeliveryTracking(order_id=order.id, status='placed', note='Order placed'))
+    db.session.commit()
+    return jsonify(order.to_dict()), 201
+
+
+@app.route('/api/delivery/orders', methods=['GET'])
+@jwt_required()
+@module_required('delivery')
+def api_list_delivery_orders():
+    orders = DeliveryOrder.query.order_by(DeliveryOrder.created_at.desc()).all()
+    return jsonify([o.to_dict() for o in orders])
+
+
+@app.route('/api/delivery/orders/<int:id>', methods=['GET'])
+@jwt_required()
+@module_required('delivery')
+def api_get_delivery_order(id):
+    order = DeliveryOrder.query.get_or_404(id)
+    return jsonify(order.to_dict())
+
+
+@app.route('/api/delivery/orders/<int:id>/status', methods=['PUT'])
+@jwt_required()
+@module_required('delivery')
+def api_update_delivery_order_status(id):
+    order = DeliveryOrder.query.get_or_404(id)
+    data = request.get_json() or {}
+    new_status = data.get('status')
+
+    valid_statuses = ['placed', 'preparing', 'assigned', 'out_for_delivery', 'delivered', 'cancelled']
+    if new_status not in valid_statuses:
+        return jsonify({'error': f'status must be one of {valid_statuses}'}), 400
+
+    order.status = new_status
+    if data.get('delivery_staff_id'):
+        order.delivery_staff_id = data['delivery_staff_id']
+
+    db.session.add(DeliveryTracking(order_id=order.id, status=new_status,
+                                     note=data.get('note', '')))
+
+    new_notification = Notification(
+        title=f'Delivery Order #{order.id} Update',
+        message=f'Order status changed to "{new_status}"',
+        category='delivery'
+    )
+    db.session.add(new_notification)
+
+    db.session.commit()
+    return jsonify(order.to_dict())
+
+# =============================================================================
+# ── API: CUSTOMER AUTH (self-service) ─────────────────────────────────────────
+# =============================================================================
+
+@app.route('/api/customer/register', methods=['POST'])
+def api_customer_register():
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    required = ['full_name', 'phone', 'password']
+    for f in required:
+        if not data.get(f):
+            return jsonify({'error': f'{f} is required'}), 400
+
+    existing = Customer.query.filter_by(phone=data['phone'].strip()).first()
+    if existing and existing.has_account:
+        return jsonify({'error': 'An account already exists with this phone number'}), 400
+
+    if len(data['password']) < 6:
+        return jsonify({'error': 'Password must be at least 6 characters'}), 400
+
+    if existing:
+        # আগে থেকে হোটেল guest হিসেবে রেকর্ড আছে (booking করেছিল কিন্তু account ছিল না) — একই রেকর্ডে account যোগ করি
+        customer = existing
+        customer.full_name = data['full_name'].strip()
+        customer.email = data.get('email', customer.email)
+    else:
+        customer = Customer(
+            full_name=data['full_name'].strip(),
+            phone=data['phone'].strip(),
+            email=data.get('email', '').strip(),
+            address=data.get('address', '').strip()
+        )
+        db.session.add(customer)
+
+    customer.set_password(data['password'])
+    db.session.commit()
+
+    access_token = create_access_token(identity=f"customer:{customer.id}")
+    return jsonify({
+        'message': 'Account created successfully',
+        'access_token': access_token,
+        'customer': {'id': customer.id, 'full_name': customer.full_name, 'phone': customer.phone}
+    }), 201
+
+
+@app.route('/api/customer/login', methods=['POST'])
+def api_customer_login():
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    phone = data.get('phone', '').strip()
+    password = data.get('password', '')
+
+    if not phone or not password:
+        return jsonify({'error': 'Phone and password are required'}), 400
+
+    customer = Customer.query.filter_by(phone=phone).first()
+    if not customer or not customer.check_password(password):
+        return jsonify({'error': 'Invalid phone or password'}), 401
+
+    access_token = create_access_token(identity=f"customer:{customer.id}")
+    return jsonify({
+        'message': 'Login successful',
+        'access_token': access_token,
+        'customer': {'id': customer.id, 'full_name': customer.full_name, 'phone': customer.phone}
+    }), 200
+
+
+def get_current_customer():
+    """JWT identity থেকে customer বের করে (identity format: 'customer:<id>')"""
+    identity = get_jwt_identity()
+    if not identity or not identity.startswith('customer:'):
+        return None
+    customer_id = int(identity.split(':')[1])
+    return Customer.query.get(customer_id)
+
+
+@app.route('/api/customer/me', methods=['GET'])
+@jwt_required()
+def api_customer_me():
+    customer = get_current_customer()
+    if not customer:
+        return jsonify({'error': 'Not a customer account'}), 403
+    return jsonify({
+        'id': customer.id, 'full_name': customer.full_name,
+        'phone': customer.phone, 'email': customer.email
+    })
+
+
+@app.route('/api/customer/my-orders', methods=['GET'])
+@jwt_required()
+def api_customer_my_orders():
+    """নিজের delivery order history — customer শুধু নিজের অর্ডারই দেখতে পাবে"""
+    customer = get_current_customer()
+    if not customer:
+        return jsonify({'error': 'Not a customer account'}), 403
+
+    orders = DeliveryOrder.query.filter_by(customer_id=customer.id)\
+        .order_by(DeliveryOrder.created_at.desc()).all()
+    return jsonify([o.to_dict() for o in orders])
+
+
+@app.route('/api/customer/orders', methods=['POST'])
+@jwt_required()
+def api_customer_place_order():
+    """Customer নিজে delivery order প্লেস করে — admin-এর দরকার নেই"""
+    customer = get_current_customer()
+    if not customer:
+        return jsonify({'error': 'Not a customer account'}), 403
+
+    data = request.get_json()
+    address = data.get('address')
+    items = data.get('items', [])
+
+    if not address:
+        return jsonify({'error': 'address is required'}), 400
+    if not items:
+        return jsonify({'error': 'At least one item is required'}), 400
+
+    order = DeliveryOrder(customer_id=customer.id, address=address)
+    db.session.add(order)
+    db.session.flush()
+
+    total = 0
+    for it in items:
+        menu_item = MenuItem.query.get(it.get('menu_item_id'))
+        if not menu_item:
+            continue
+        qty = int(it.get('quantity', 1))
+        db.session.add(DeliveryOrderItem(
+            order_id=order.id, menu_item_id=menu_item.id,
+            quantity=qty, price_at_order=menu_item.price
+        ))
+        total += menu_item.price * qty
+
+    order.total_amount = total
+    db.session.add(DeliveryTracking(order_id=order.id, status='placed', note='Order placed by customer'))
+    db.session.commit()
+    return jsonify(order.to_dict()), 201
+
+# =============================================================================
+# ── API: HOUSEKEEPING ─────────────────────────────────────────────────────────
+# =============================================================================
+
+@app.route('/api/housekeeping/tasks', methods=['GET'])
+@jwt_required()
+def api_list_housekeeping_tasks():
+    tasks = HousekeepingTask.query.order_by(HousekeepingTask.created_at.desc()).all()
+    return jsonify([t.to_dict() for t in tasks])
+
+
+@app.route('/api/housekeeping/tasks', methods=['POST'])
+@jwt_required()
+@module_required('hotel_housekeeping')
+def api_create_housekeeping_task():
+    data = request.get_json()
+    if not data or not data.get('room_id'):
+        return jsonify({'error': 'room_id is required'}), 400
+
+    room = Room.query.get(data['room_id'])
+    if not room:
+        return jsonify({'error': 'Room not found'}), 404
+
+    task = HousekeepingTask(
+        room_id=room.id,
+        assigned_to=data.get('assigned_to'),
+        task_type=data.get('task_type', 'cleaning'),
+        notes=data.get('notes', '')
+    )
+    db.session.add(task)
+
+    db.session.add(Notification(
+        title='New Housekeeping Task',
+        message=f'Room {room.room_number} needs {task.task_type}',
+        category='housekeeping'
+    ))
+
+    db.session.commit()
+    return jsonify(task.to_dict()), 201
+
+
+@app.route('/api/housekeeping/tasks/<int:id>/status', methods=['PUT'])
+@jwt_required()
+@module_required('hotel_housekeeping')
+def api_update_housekeeping_status(id):
+    task = HousekeepingTask.query.get_or_404(id)
+    data = request.get_json() or {}
+    new_status = data.get('status')
+
+    valid_statuses = ['pending', 'in_progress', 'completed']
+    if new_status not in valid_statuses:
+        return jsonify({'error': f'status must be one of {valid_statuses}'}), 400
+
+    task.status = new_status
+    if new_status == 'completed':
+        task.completed_at = datetime.utcnow()
+
+    db.session.commit()
+    return jsonify(task.to_dict())
+
+# =============================================================================
+# ── API: NOTIFICATIONS ────────────────────────────────────────────────────────
+# =============================================================================
+
+@app.route('/api/notifications', methods=['GET'])
+@jwt_required()
+def api_notifications():
+    notifications = Notification.query.order_by(Notification.created_at.desc()).limit(50).all()
+    return jsonify([n.to_dict() for n in notifications])
+
+
+@app.route('/api/notifications/<int:id>/read', methods=['PUT'])
+@jwt_required()
+def api_mark_notification_read(id):
+    n = Notification.query.get_or_404(id)
+    n.is_read = True
+    db.session.commit()
+    return jsonify(n.to_dict())
+
+
+@app.route('/api/notifications/unread-count', methods=['GET'])
+@jwt_required()
+def api_unread_count():
+    count = Notification.query.filter_by(is_read=False).count()
+    return jsonify({'count': count})
 
 
 # =============================================================================

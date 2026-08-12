@@ -107,7 +107,7 @@ export default function Bookings() {
       {/* Header */}
       <div className="page-header">
         <h2>📋 Bookings</h2>
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+        <button className="btn btn-cta" onClick={() => setShowModal(true)}>
           ➕ New Booking
         </button>
       </div>
@@ -144,7 +144,7 @@ export default function Bookings() {
                 style={{
                   padding:'8px 16px', borderRadius:'20px', border:'none',
                   cursor:'pointer', fontSize:'13px', fontWeight:'600',
-                  background: filter === f ? '#c8973a' : '#f1f5f9',
+                  background: filter === f ? '#1F3A5F' : '#f1f5f9',
                   color:      filter === f ? 'white'   : '#64748b',
                 }}
               >
@@ -189,7 +189,7 @@ export default function Bookings() {
                   <td>Room {b.room}</td>
                   <td>{b.checkin_date}</td>
                   <td>{b.checkout_date}</td>
-                  <td style={{ color:'#c8973a', fontWeight:'600' }}>
+                  <td style={{ color:'#1F3A5F', fontWeight:'600' }}>
                     ৳{b.total_amount?.toLocaleString()}
                   </td>
                   <td>
@@ -329,7 +329,7 @@ export default function Bookings() {
                         <span style={{ color:'#64748b', fontSize:'13px' }}>
                           {nights} night{nights !== 1 ? 's' : ''} × ৳{room?.price?.toLocaleString()}
                         </span>
-                        <span style={{ color:'#c8973a', fontWeight:'700', fontSize:'16px' }}>
+                        <span style={{ color:'#1F3A5F', fontWeight:'700', fontSize:'16px' }}>
                           Total: ৳{total.toLocaleString()}
                         </span>
                       </div>
@@ -339,7 +339,7 @@ export default function Bookings() {
               )}
 
               <div style={{ display:'flex', gap:'12px' }}>
-                <button type="submit" className="btn btn-primary" style={{ flex:1 }}>
+                <button type="submit" className="btn btn-cta" style={{ flex:1 }}>
                   ✅ Confirm Booking
                 </button>
                 <button

@@ -4,23 +4,24 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid,
 import API from '../api/axios';
 
 export default function Dashboard() {
-  const [stats,  setStats]  = useState(null);
-  const [chart,  setChart]  = useState([]);
-  const [recent, setRecent] = useState([]);
+  const [stats,    setStats]    = useState(null);
+  const [business, setBusiness] = useState(null);
+  const [chart,    setChart]    = useState([]);
+  const [recent,   setRecent]   = useState([]);
 
   useEffect(() => {
     API.get('/api/reports/summary').then(r => setStats(r.data));
+    API.get('/api/reports/business-summary').then(r => setBusiness(r.data));
     API.get('/api/bookings').then(r => {
       const bookings = r.data.slice(0, 8);
       setRecent(bookings);
-      // Build chart data from last 6 months
       const months = [];
       for (let i = 5; i >= 0; i--) {
         const d = new Date();
         d.setMonth(d.getMonth() - i);
         months.push({
           month: d.toLocaleString('default', { month: 'short' }),
-          revenue: Math.random() * 50000  // replace with real API data
+          revenue: Math.random() * 50000
         });
       }
       setChart(months);
@@ -49,20 +50,60 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {/* Business Overview — Cross-module */}
+      <div className="card" style={{ marginBottom: '24px' }}>
+        <h3 style={{ marginBottom: '16px', color: '#1e293b' }}>🏢 Business Overview</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px' }}>
+          <div style={{ padding: '16px', background: '#f8fafc', borderRadius: '10px', borderLeft: '4px solid #1F3A5F' }}>
+            <div style={{ fontSize: '13px', color: '#64748b' }}>🛏️ Hotel Revenue</div>
+            <div style={{ fontSize: '24px', fontWeight: '700', color: '#1F3A5F' }}>
+              ৳{business?.hotel_revenue?.toLocaleString() ?? '...'}
+            </div>
+          </div>
+          <div style={{ padding: '16px', background: '#f8fafc', borderRadius: '10px', borderLeft: '4px solid #1F3A5F' }}>
+            <div style={{ fontSize: '13px', color: '#64748b' }}>🍽️ Restaurant Revenue</div>
+            <div style={{ fontSize: '24px', fontWeight: '700', color: '#1F3A5F' }}>
+              ৳{business?.restaurant_revenue?.toLocaleString() ?? '...'}
+            </div>
+            <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '4px' }}>
+              {business?.restaurant_orders_count ?? 0} orders total · {business?.pending_restaurant_orders ?? 0} pending
+            </div>
+          </div>
+          <div style={{ padding: '16px', background: '#f8fafc', borderRadius: '10px', borderLeft: '4px solid #1F3A5F' }}>
+            <div style={{ fontSize: '13px', color: '#64748b' }}>🛵 Delivery Revenue</div>
+            <div style={{ fontSize: '24px', fontWeight: '700', color: '#1F3A5F' }}>
+              ৳{business?.delivery_revenue?.toLocaleString() ?? '...'}
+            </div>
+            <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '4px' }}>
+              {business?.delivery_orders_count ?? 0} orders total · {business?.pending_delivery_orders ?? 0} pending
+            </div>
+          </div>
+        </div>
+        <div style={{
+          marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+        }}>
+          <span style={{ fontSize: '14px', color: '#64748b', fontWeight: '600' }}>Combined Total Revenue</span>
+          <span style={{ fontSize: '26px', fontWeight: '700', color: '#FF2147' }}>
+            ৳{business?.total_revenue?.toLocaleString() ?? '...'}
+          </span>
+        </div>
+      </div>
+
       {/* Revenue Row */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
         <div className="card">
-          <h3 style={{ marginBottom: '16px', color: '#1e293b' }}>💰 Revenue</h3>
+          <h3 style={{ marginBottom: '16px', color: '#1e293b' }}>💰 Hotel Revenue</h3>
           <div style={{ marginBottom: '16px' }}>
             <div style={{ fontSize: '13px', color: '#64748b' }}>Today</div>
-            <div style={{ fontSize: '28px', fontWeight: '700', color: '#c8973a' }}>
+            <div style={{ fontSize: '28px', fontWeight: '700', color: '#1F3A5F' }}>
               ৳{stats?.daily_revenue?.toLocaleString() ?? 0}
             </div>
           </div>
           <hr style={{ border: 'none', borderTop: '1px solid #e2e8f0', margin: '16px 0' }} />
           <div>
             <div style={{ fontSize: '13px', color: '#64748b' }}>This Month</div>
-            <div style={{ fontSize: '28px', fontWeight: '700', color: '#c8973a' }}>
+            <div style={{ fontSize: '28px', fontWeight: '700', color: '#1F3A5F' }}>
               ৳{stats?.monthly_revenue?.toLocaleString() ?? 0}
             </div>
           </div>
@@ -77,7 +118,7 @@ export default function Dashboard() {
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip />
               <Line type="monotone" dataKey="revenue"
-                    stroke="#c8973a" strokeWidth={2} dot={false} />
+                    stroke="#1F3A5F" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>

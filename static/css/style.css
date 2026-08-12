@@ -6,9 +6,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --primary:     #c8973a;
-  --primary-dark:#a07828;
-  --accent:      #e8b86d;
+  --primary:     #1F3A5F;   /* client navy */
+  --primary-dark:#16293f;   /* darker navy, for hover states */
+  --accent:      #FF2147;   /* client red — used for highlights/CTAs */
   --bg-dark:     #0d1117;
   --bg-card:     rgba(255,255,255,0.05);
   --bg-sidebar:  rgba(13,17,23,0.97);
@@ -33,7 +33,7 @@ body {
   color: var(--text);
   min-height: 100vh;
   background-image:
-    radial-gradient(ellipse at 20% 50%, rgba(200,151,58,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 50%, rgba(31,58,95,0.08) 0%, transparent 60%),
     radial-gradient(ellipse at 80% 10%, rgba(88,166,255,0.05) 0%, transparent 50%);
 }
 
@@ -59,7 +59,7 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Playfair Display', serif; }
   position: absolute;
   width: 600px; height: 600px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(200,151,58,0.15), transparent 70%);
+  background: radial-gradient(circle, rgba(31,58,95,0.15), transparent 70%);
   top: -200px; left: -200px;
   animation: pulse 6s ease-in-out infinite;
 }
@@ -102,7 +102,7 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Playfair Display', serif; }
   justify-content: center;
   margin: 0 auto 16px;
   font-size: 32px;
-  box-shadow: 0 8px 32px rgba(200,151,58,0.3);
+  box-shadow: 0 8px 32px rgba(31,58,95,0.3);
 }
 .login-logo h2 {
   font-size: 1.4rem;
@@ -163,7 +163,7 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Playfair Display', serif; }
 .sidebar-nav .nav-link i { width: 18px; text-align: center; }
 .sidebar-nav .nav-link:hover,
 .sidebar-nav .nav-link.active {
-  background: rgba(200,151,58,0.15);
+  background: rgba(31,58,95,0.15);
   color: var(--accent);
 }
 .sidebar-nav .nav-link.active {
@@ -244,7 +244,7 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Playfair Display', serif; }
   font-size: 22px;
   flex-shrink: 0;
 }
-.stat-icon.gold   { background: rgba(200,151,58,0.2);  color: var(--primary); }
+.stat-icon.gold   { background: rgba(31,58,95,0.2);  color: var(--primary); }
 .stat-icon.blue   { background: rgba(88,166,255,0.2);  color: var(--info); }
 .stat-icon.green  { background: rgba(63,185,80,0.2);   color: var(--success); }
 .stat-icon.red    { background: rgba(248,81,73,0.2);   color: var(--danger); }
@@ -260,7 +260,7 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Playfair Display', serif; }
   color: var(--text);
 }
 .table-glass thead th {
-  background: rgba(200,151,58,0.1);
+  background: rgba(31,58,95,0.1);
   color: var(--accent);
   font-size: 0.78rem;
   text-transform: uppercase;
@@ -274,7 +274,7 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Playfair Display', serif; }
   border-color: rgba(255,255,255,0.05);
   transition: background 0.15s;
 }
-.table-glass tbody tr:hover { background: rgba(200,151,58,0.05); }
+.table-glass tbody tr:hover { background: rgba(31,58,95,0.05); }
 .table-glass tbody td {
   padding: 12px 16px;
   border-color: rgba(255,255,255,0.05);
@@ -310,11 +310,11 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Playfair Display', serif; }
   border-radius: 10px;
   padding: 10px 20px;
   transition: all 0.25s;
-  box-shadow: 0 4px 16px rgba(200,151,58,0.3);
+  box-shadow: 0 4px 16px rgba(31,58,95,0.3);
 }
 .btn-gold:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(200,151,58,0.5);
+  box-shadow: 0 6px 24px rgba(31,58,95,0.5);
   color: #0d1117;
 }
 .btn-glass {
@@ -372,7 +372,7 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Playfair Display', serif; }
   background: rgba(255,255,255,0.1);
   border-color: var(--primary);
   color: var(--text);
-  box-shadow: 0 0 0 3px rgba(200,151,58,0.15);
+  box-shadow: 0 0 0 3px rgba(31,58,95,0.15);
   outline: none;
 }
 .form-control-glass::placeholder { color: var(--text-muted); }
@@ -414,7 +414,7 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Playfair Display', serif; }
   transition: transform 0.3s;
 }
 .room-card:hover::after { transform: scaleX(1); }
-.room-card:hover { border-color: rgba(200,151,58,0.3); }
+.room-card:hover { border-color: rgba(31,58,95,0.3); }
 .room-number { font-size: 1.5rem; font-family: 'Playfair Display', serif; color: var(--accent); }
 
 /* ─── Invoice ───────────────────────────────── */
@@ -435,7 +435,7 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Playfair Display', serif; }
 .invoice-header { border-bottom: 2px solid var(--primary); padding-bottom: 24px; margin-bottom: 24px; }
 .invoice-hotel-name { font-size: 1.8rem; color: var(--accent); }
 .invoice-number { font-size: 0.8rem; color: var(--text-muted); text-align: right; }
-.invoice-table th { background: rgba(200,151,58,0.15); color: var(--accent); }
+.invoice-table th { background: rgba(31,58,95,0.15); color: var(--accent); }
 .invoice-total { font-size: 1.2rem; color: var(--accent); font-family: 'Playfair Display', serif; }
 
 /* ─── Chart Container ───────────────────────── */

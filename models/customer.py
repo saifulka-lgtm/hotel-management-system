@@ -1,5 +1,6 @@
 from extensions import db
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class Customer(db.Model):
     __tablename__ = 'customers'
@@ -9,5 +10,18 @@ class Customer(db.Model):
     email = db.Column(db.String(100))
     nid_passport = db.Column(db.String(50))
     address = db.Column(db.Text)
+
+    password_hash = db.Column(db.String(255), nullable=True)
+    has_account = db.Column(db.Boolean, default=False)
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     bookings = db.relationship('Booking', backref='customer', lazy=True)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+        self.has_account = True
+
+    def check_password(self, password):
+        if not self.password_hash:
+            return False
+        return check_password_hash(self.password_hash, password)

@@ -1,3 +1,10 @@
+:root {
+  --brand-navy: #1F3A5F;
+  --brand-navy-dark: #16293f;
+  --brand-red: #FF2147;
+  --brand-red-dark: #d81a3b;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -12,7 +19,7 @@ body {
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #f1f5f9; }
-::-webkit-scrollbar-thumb { background: #c8973a; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: var(--brand-navy); border-radius: 3px; }
 
 .card {
   background: white;
@@ -31,8 +38,13 @@ body {
   transition: all 0.2s;
 }
 
-.btn-primary  { background: #c8973a; color: white; }
-.btn-primary:hover  { background: #b8872a; }
+.btn-primary  { background: var(--brand-navy); color: white; }
+.btn-primary:hover  { background: var(--brand-navy-dark); }
+
+/* Call-to-action — "New Booking", "New Order", "Place Order" ইত্যাদির জন্য */
+.btn-cta      { background: var(--brand-red); color: white; }
+.btn-cta:hover      { background: var(--brand-red-dark); }
+
 .btn-danger   { background: #ef4444; color: white; }
 .btn-danger:hover   { background: #dc2626; }
 .btn-success  { background: #22c55e; color: white; }
@@ -78,7 +90,7 @@ input, select, textarea {
   background: white;
 }
 
-input:focus, select:focus { border-color: #c8973a; }
+input:focus, select:focus { border-color: var(--brand-navy); }
 
 label {
   display: block;
@@ -171,4 +183,4 @@ label {
   width: 280px;
 }
 
-.search-box:focus { border-color: #c8973a; }
+.search-box:focus { border-color: var(--brand-navy); }
