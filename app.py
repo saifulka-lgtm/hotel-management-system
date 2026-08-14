@@ -27,6 +27,8 @@ CORS(app)
 app.config.from_object(Config)
 
 db.init_app(app)
+print("DEBUG: DATABASE_URL env var set?", 'DATABASE_URL' in os.environ)
+print("DEBUG: Using DB host:", app.config['SQLALCHEMY_DATABASE_URI'].split('@')[-1] if '@' in app.config['SQLALCHEMY_DATABASE_URI'] else 'NO @ FOUND - ' + app.config['SQLALCHEMY_DATABASE_URI'][:30])
 login_manager.init_app(app)
 migrate.init_app(app, db)
 jwt.init_app(app)
