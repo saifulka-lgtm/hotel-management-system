@@ -7,3 +7,5 @@ Werkzeug==3.0.3
 python-dotenv==1.0.1
 flasgger
 flask-jwt-extended
+gunicorn
+psycopg2-binary
