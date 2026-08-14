@@ -471,6 +471,17 @@ def api_create_menu_item():
     db.session.commit()
     return jsonify(item.to_dict()), 201
 
+@app.route('/api/debug-db-check')
+def debug_db_check():
+    import os
+    db_url = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+    return jsonify({
+        'DATABASE_URL_env_var_present': 'DATABASE_URL' in os.environ,
+        'db_uri_has_at_symbol': '@' in db_url,
+        'db_host_part': db_url.split('@')[-1] if '@' in db_url else 'NO @ FOUND',
+        'db_uri_starts_with': db_url[:15] if db_url else 'EMPTY'
+    })
+
 # ── Booking ───────────────────────────────────────────────────────────────────
 @app.route('/book-room', methods=['GET', 'POST'])
 def book_room():
