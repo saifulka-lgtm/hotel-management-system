@@ -1793,10 +1793,14 @@ def api_unread_count():
 # =============================================================================
 # ── Run ───────────────────────────────────────────────────────────────────────
 # =============================================================================
+
+# gunicorn/production-এ এই মডিউল import হওয়ার সাথে সাথেই db.create_all()
+# ও seed_db() চলে — __main__ ব্লকের ভেতরে থাকলে gunicorn এটা কখনো চালাবে না।
+with app.app_context():
+    db.create_all()
+    seed_db()
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        seed_db()
     print("\n" + "="*55)
     print("  Smart Hotel Management System - Bangladesh")
     print("  Visit:   http://127.0.0.1:5000")
