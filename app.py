@@ -23,9 +23,8 @@ from extensions import db, login_manager, migrate, jwt
 
 # ── App Factory ───────────────────────────────────────────────────────────────
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=False)
+CORS(app, origins="*", supports_credentials=False)
 app.config.from_object(Config)
-
 db.init_app(app)
 login_manager.init_app(app)
 migrate.init_app(app, db)
