@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'https://hotel-backend-api-2t1g.onrender.com',
+  baseURL: 'https://hotel-backend-api-21ig.onrender.com',
 });
 
 API.interceptors.request.use((config) => {
