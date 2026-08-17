@@ -6,11 +6,13 @@ export default function Bookings() {
   const [bookings, setBookings] = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [isNewCustomer, setIsNewCustomer] = useState(false);
   const [filter,   setFilter]   = useState('All');
   const [search,   setSearch]   = useState('');
   const [form, setForm] = useState({
     customer_id: '', room_id: '',
-    checkin_date: '', checkout_date: ''
+    checkin_date: '', checkout_date: '',
+    new_customer_name: '', new_customer_phone: ''
   });
   const [customers, setCustomers] = useState([]);
   const [rooms,     setRooms]     = useState([]);
@@ -23,24 +25,52 @@ export default function Bookings() {
       .finally(() => setLoading(false));
   };
 
+  const fetchCustomers = () => {
+    API.get('/api/customers').then(r => setCustomers(r.data)).catch(() => {});
+  };
+
   useEffect(() => {
     fetchBookings();
-    API.get('/api/customers').then(r => setCustomers(r.data)).catch(() => {});
+    fetchCustomers();
     API.get('/api/rooms').then(r => setRooms(r.data)).catch(() => {});
   }, []);
+
+  const resetForm = () => {
+    setForm({ customer_id:'', room_id:'', checkin_date:'', checkout_date:'', new_customer_name:'', new_customer_phone:'' });
+    setIsNewCustomer(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      let customerId = form.customer_id;
+
+      if (isNewCustomer) {
+        if (!form.new_customer_name || !form.new_customer_phone) {
+          toast.error('Customer name and phone are required');
+          return;
+        }
+        const custRes = await API.post('/api/customers', {
+          full_name: form.new_customer_name,
+          phone: form.new_customer_phone
+        });
+        customerId = custRes.data.id;
+      } else if (!form.customer_id) {
+        toast.error('Please select a customer');
+        return;
+      }
+
       await API.post('/api/bookings', {
-        ...form,
-        customer_id: parseInt(form.customer_id),
+        customer_id: parseInt(customerId),
         room_id:     parseInt(form.room_id),
+        checkin_date: form.checkin_date,
+        checkout_date: form.checkout_date
       });
       toast.success('Booking created successfully!');
       setShowModal(false);
-      setForm({ customer_id:'', room_id:'', checkin_date:'', checkout_date:'' });
+      resetForm();
       fetchBookings();
+      fetchCustomers();
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to create booking');
     }
@@ -204,7 +234,6 @@ export default function Bookings() {
                   </td>
                   <td>
                     <div style={{ display:'flex', gap:'6px', flexWrap:'wrap' }}>
-                      {/* Check-in button */}
                       {b.status === 'Pending' && (
                         <button
                           className="btn btn-success"
@@ -214,7 +243,6 @@ export default function Bookings() {
                           ✅ Check-in
                         </button>
                       )}
-                      {/* Check-out button */}
                       {b.status === 'Confirmed' && (
                         <button
                           className="btn btn-info"
@@ -224,7 +252,6 @@ export default function Bookings() {
                           🚪 Check-out
                         </button>
                       )}
-                      {/* Cancel button */}
                       {!['Completed','Cancelled'].includes(b.status) && (
                         <button
                           className="btn btn-danger"
@@ -248,28 +275,71 @@ export default function Bookings() {
 
       {/* New Booking Modal */}
       {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+        <div className="modal-overlay" onClick={() => { setShowModal(false); resetForm(); }}>
           <div className="modal-box" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h3>➕ New Booking</h3>
-              <button className="close-btn" onClick={() => setShowModal(false)}>✕</button>
+              <button className="close-btn" onClick={() => { setShowModal(false); resetForm(); }}>✕</button>
             </div>
 
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>Customer *</label>
-                <select
-                  value={form.customer_id}
-                  onChange={e => setForm({...form, customer_id: e.target.value})}
-                  required
-                >
-                  <option value="">— Select Customer —</option>
-                  {customers.map(c => (
-                    <option key={c.id} value={c.id}>
-                      {c.full_name} — {c.phone}
-                    </option>
-                  ))}
-                </select>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                  <button
+                    type="button"
+                    className="btn"
+                    style={{
+                      flex: 1, padding: '6px', fontSize: '12px',
+                      background: !isNewCustomer ? '#1F3A5F' : '#f1f5f9',
+                      color: !isNewCustomer ? 'white' : '#64748b'
+                    }}
+                    onClick={() => setIsNewCustomer(false)}
+                  >
+                    Existing Customer
+                  </button>
+                  <button
+                    type="button"
+                    className="btn"
+                    style={{
+                      flex: 1, padding: '6px', fontSize: '12px',
+                      background: isNewCustomer ? '#FF2147' : '#f1f5f9',
+                      color: isNewCustomer ? 'white' : '#64748b'
+                    }}
+                    onClick={() => setIsNewCustomer(true)}
+                  >
+                    + New Customer
+                  </button>
+                </div>
+
+                {!isNewCustomer ? (
+                  <select
+                    value={form.customer_id}
+                    onChange={e => setForm({...form, customer_id: e.target.value})}
+                  >
+                    <option value="">— Select Customer —</option>
+                    {customers.map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.full_name} — {c.phone}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <input
+                      type="text"
+                      placeholder="Full Name"
+                      value={form.new_customer_name}
+                      onChange={e => setForm({...form, new_customer_name: e.target.value})}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Phone Number"
+                      value={form.new_customer_phone}
+                      onChange={e => setForm({...form, new_customer_phone: e.target.value})}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="form-group">
@@ -346,7 +416,7 @@ export default function Bookings() {
                   type="button"
                   className="btn btn-secondary"
                   style={{ flex:1 }}
-                  onClick={() => setShowModal(false)}
+                  onClick={() => { setShowModal(false); resetForm(); }}
                 >
                   Cancel
                 </button>
