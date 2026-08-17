@@ -8,9 +8,12 @@ export default function Delivery() {
   const [menu, setMenu] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [isNewCustomer, setIsNewCustomer] = useState(false);
 
   const [form, setForm] = useState({
     customer_id: '',
+    new_customer_name: '',
+    new_customer_phone: '',
     address: '',
     items: []
   });
@@ -23,9 +26,13 @@ export default function Delivery() {
       .finally(() => setLoading(false));
   };
 
+  const fetchCustomers = () => {
+    API.get('/api/customers').then(r => setCustomers(r.data)).catch(() => {});
+  };
+
   useEffect(() => {
     fetchOrders();
-    API.get('/api/customers').then(r => setCustomers(r.data)).catch(() => {});
+    fetchCustomers();
     API.get('/api/menu').then(r => setMenu(r.data)).catch(() => {});
   }, []);
 
@@ -76,14 +83,13 @@ export default function Delivery() {
     }, 0);
   };
 
-  const resetForm = () => setForm({ customer_id: '', address: '', items: [] });
+  const resetForm = () => {
+    setForm({ customer_id: '', new_customer_name: '', new_customer_phone: '', address: '', items: [] });
+    setIsNewCustomer(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.customer_id) {
-      toast.error('একজন কাস্টমার সিলেক্ট করুন');
-      return;
-    }
     if (!form.address.trim()) {
       toast.error('ডেলিভারি ঠিকানা দিন');
       return;
@@ -92,9 +98,27 @@ export default function Delivery() {
       toast.error('অন্তত একটি আইটেম যোগ করুন');
       return;
     }
+
     try {
+      let customerId = form.customer_id;
+
+      if (isNewCustomer) {
+        if (!form.new_customer_name || !form.new_customer_phone) {
+          toast.error('কাস্টমারের নাম ও ফোন নম্বর দিন');
+          return;
+        }
+        const custRes = await API.post('/api/customers', {
+          full_name: form.new_customer_name,
+          phone: form.new_customer_phone
+        });
+        customerId = custRes.data.id;
+      } else if (!form.customer_id) {
+        toast.error('একজন কাস্টমার সিলেক্ট করুন');
+        return;
+      }
+
       await API.post('/api/delivery/orders', {
-        customer_id: parseInt(form.customer_id),
+        customer_id: parseInt(customerId),
         address: form.address,
         items: form.items
       });
@@ -102,6 +126,7 @@ export default function Delivery() {
       setShowModal(false);
       resetForm();
       fetchOrders();
+      fetchCustomers();
     } catch (err) {
       toast.error(err.response?.data?.error || 'অর্ডার তৈরি ব্যর্থ হয়েছে');
     }
@@ -192,28 +217,71 @@ export default function Delivery() {
       </div>
 
       {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+        <div className="modal-overlay" onClick={() => { setShowModal(false); resetForm(); }}>
           <div className="modal-box" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h3>➕ New Delivery Order</h3>
-              <button className="close-btn" onClick={() => setShowModal(false)}>✕</button>
+              <button className="close-btn" onClick={() => { setShowModal(false); resetForm(); }}>✕</button>
             </div>
 
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>Customer *</label>
-                <select
-                  value={form.customer_id}
-                  onChange={e => setForm({ ...form, customer_id: e.target.value })}
-                  required
-                >
-                  <option value="">— Select Customer —</option>
-                  {customers.map(c => (
-                    <option key={c.id} value={c.id}>
-                      {c.full_name} — {c.phone}
-                    </option>
-                  ))}
-                </select>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                  <button
+                    type="button"
+                    className="btn"
+                    style={{
+                      flex: 1, padding: '6px', fontSize: '12px',
+                      background: !isNewCustomer ? '#1F3A5F' : '#f1f5f9',
+                      color: !isNewCustomer ? 'white' : '#64748b'
+                    }}
+                    onClick={() => setIsNewCustomer(false)}
+                  >
+                    Existing Customer
+                  </button>
+                  <button
+                    type="button"
+                    className="btn"
+                    style={{
+                      flex: 1, padding: '6px', fontSize: '12px',
+                      background: isNewCustomer ? '#FF2147' : '#f1f5f9',
+                      color: isNewCustomer ? 'white' : '#64748b'
+                    }}
+                    onClick={() => setIsNewCustomer(true)}
+                  >
+                    + New Customer
+                  </button>
+                </div>
+
+                {!isNewCustomer ? (
+                  <select
+                    value={form.customer_id}
+                    onChange={e => setForm({ ...form, customer_id: e.target.value })}
+                  >
+                    <option value="">— Select Customer —</option>
+                    {customers.map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.full_name} — {c.phone}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <input
+                      type="text"
+                      placeholder="Full Name"
+                      value={form.new_customer_name}
+                      onChange={e => setForm({ ...form, new_customer_name: e.target.value })}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Phone Number"
+                      value={form.new_customer_phone}
+                      onChange={e => setForm({ ...form, new_customer_phone: e.target.value })}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="form-group">
