@@ -1495,6 +1495,56 @@ def api_update_restaurant_order_status(id):
 
     db.session.commit()
     return jsonify(order.to_dict())
+# =============================================================================
+# ── API: WAITER ASSIGNMENT ────────────────────────────────────────────────────
+# =============================================================================
+
+@app.route('/api/restaurant/waiter-assignments', methods=['GET'])
+@jwt_required()
+def api_list_waiter_assignments():
+    assignments = WaiterAssignment.query.order_by(WaiterAssignment.shift_date.desc()).all()
+    result = []
+    for a in assignments:
+        d = a.to_dict()
+        waiter = Admin.query.get(a.waiter_id)
+        table = RestaurantTable.query.get(a.table_id)
+        d['waiter_name'] = waiter.username if waiter else None
+        d['table_number'] = table.table_number if table else None
+        result.append(d)
+    return jsonify(result)
+
+
+@app.route('/api/restaurant/waiter-assignments', methods=['POST'])
+@jwt_required()
+@module_required('restaurant')
+def api_create_waiter_assignment():
+    data = request.get_json()
+    if not data or not data.get('waiter_id') or not data.get('table_id') or not data.get('shift_date'):
+        return jsonify({'error': 'waiter_id, table_id, and shift_date are required'}), 400
+
+    try:
+        shift_date = datetime.strptime(data['shift_date'], '%Y-%m-%d').date()
+    except ValueError:
+        return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+
+    assignment = WaiterAssignment(
+        waiter_id=data['waiter_id'],
+        table_id=data['table_id'],
+        shift_date=shift_date
+    )
+    db.session.add(assignment)
+    db.session.commit()
+    return jsonify(assignment.to_dict()), 201
+
+
+@app.route('/api/restaurant/waiter-assignments/<int:id>', methods=['DELETE'])
+@jwt_required()
+@module_required('restaurant')
+def api_delete_waiter_assignment(id):
+    assignment = WaiterAssignment.query.get_or_404(id)
+    db.session.delete(assignment)
+    db.session.commit()
+    return jsonify({'message': 'Assignment removed'})
 
 
 # =============================================================================

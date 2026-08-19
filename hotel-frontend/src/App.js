@@ -14,6 +14,7 @@ import Payments      from './pages/Payments';
 import Reports       from './pages/Reports';
 import Housekeeping from './pages/Housekeeping';
 import Menu from './pages/Menu';
+import WaiterAssignments from './pages/WaiterAssignments';
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
             <Route path="reports"      element={<Reports />} />
             <Route path="housekeeping" element={<Housekeeping />} />
             <Route path="menu" element={<Menu />} />
+            <Route path="waiter-assignments" element={<WaiterAssignments />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>

@@ -13,6 +13,7 @@ const menu = [
   { path: '/notifications', icon: '🔔', label: 'Notifications' },
   { path: '/housekeeping', icon: '🧹', label: 'Housekeeping' },
   { path: '/menu', icon: '🍲', label: 'Menu' },
+  { path: '/waiter-assignments', icon: '🧑‍🍳', label: 'Waiter Duty' },
 ];
 
 export default function Sidebar() {
