@@ -11,6 +11,7 @@ const menu = [
   { path: '/payments',   icon: '💳', label: 'Payments'   },
   { path: '/reports',    icon: '📈', label: 'Reports'    },
   { path: '/notifications', icon: '🔔', label: 'Notifications' },
+  { path: '/housekeeping', icon: '🧹', label: 'Housekeeping' },
 ];
 
 export default function Sidebar() {

@@ -12,6 +12,7 @@ import Notifications from './pages/Notifications';
 import Customers     from './pages/Customers';
 import Payments      from './pages/Payments';
 import Reports       from './pages/Reports';
+import Housekeeping from './pages/Housekeeping';
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
             <Route path="customers"    element={<Customers />} />
             <Route path="payments"     element={<Payments />} />
             <Route path="reports"      element={<Reports />} />
+            <Route path="housekeeping" element={<Housekeeping />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>
