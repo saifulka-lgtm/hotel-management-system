@@ -478,6 +478,27 @@ def debug_db_check():
         'db_host_part': db_url.split('@')[-1] if '@' in db_url else 'NO @ FOUND',
         'db_uri_starts_with': db_url[:15] if db_url else 'EMPTY'
     })
+@app.route('/api/menu/<int:id>', methods=['PUT'])
+@jwt_required()
+@module_required('restaurant')
+def api_update_menu_item(id):
+    item = MenuItem.query.get_or_404(id)
+    data = request.get_json() or {}
+    item.name = data.get('name', item.name)
+    item.category = data.get('category', item.category)
+    item.price = float(data.get('price', item.price))
+    item.is_available = data.get('is_available', item.is_available)
+    item.description = data.get('description', item.description)
+    db.session.commit()
+    return jsonify(item.to_dict())
+
+
+@app.route('/api/menu/all', methods=['GET'])
+@jwt_required()
+def api_menu_all():
+    """Admin panel-এর জন্য — is_available=False আইটেমও দেখাবে"""
+    items = MenuItem.query.all()
+    return jsonify([i.to_dict() for i in items])
 
 # ── Booking ───────────────────────────────────────────────────────────────────
 @app.route('/book-room', methods=['GET', 'POST'])

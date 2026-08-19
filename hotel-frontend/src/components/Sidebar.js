@@ -12,6 +12,7 @@ const menu = [
   { path: '/reports',    icon: '📈', label: 'Reports'    },
   { path: '/notifications', icon: '🔔', label: 'Notifications' },
   { path: '/housekeeping', icon: '🧹', label: 'Housekeeping' },
+  { path: '/menu', icon: '🍲', label: 'Menu' },
 ];
 
 export default function Sidebar() {

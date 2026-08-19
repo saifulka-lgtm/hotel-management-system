@@ -13,6 +13,7 @@ import Customers     from './pages/Customers';
 import Payments      from './pages/Payments';
 import Reports       from './pages/Reports';
 import Housekeeping from './pages/Housekeeping';
+import Menu from './pages/Menu';
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
             <Route path="payments"     element={<Payments />} />
             <Route path="reports"      element={<Reports />} />
             <Route path="housekeeping" element={<Housekeeping />} />
+            <Route path="menu" element={<Menu />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>
