@@ -443,6 +443,12 @@ def api_create_employee():
     db.session.commit()
     return jsonify(emp.to_dict()), 201
 
+@app.route('/api/roles', methods=['GET'])
+@jwt_required()
+def api_list_roles():
+    roles = Role.query.all()
+    return jsonify([r.to_dict() for r in roles])
+
 # ── Menu API ─────────────────────────────────────────────────────────────────
 @app.route('/api/menu', methods=['GET'])
 def api_menu():

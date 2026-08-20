@@ -14,6 +14,7 @@ const menu = [
   { path: '/housekeeping', icon: '🧹', label: 'Housekeeping' },
   { path: '/menu', icon: '🍲', label: 'Menu' },
   { path: '/waiter-assignments', icon: '🧑‍🍳', label: 'Waiter Duty' },
+  { path: '/employees', icon: '👥', label: 'Staff & Roles' },
 ];
 
 export default function Sidebar() {
