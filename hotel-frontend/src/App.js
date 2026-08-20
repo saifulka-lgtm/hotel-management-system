@@ -16,6 +16,7 @@ import Housekeeping from './pages/Housekeeping';
 import Menu from './pages/Menu';
 import WaiterAssignments from './pages/WaiterAssignments';
 import Employees from './pages/Employees';
+import Inventory from './pages/Inventory';
 
 export default function App() {
   return (
@@ -41,6 +42,7 @@ export default function App() {
             <Route path="employees" element={<Employees />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" />} />
+          <Route path="inventory" element={<Inventory />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

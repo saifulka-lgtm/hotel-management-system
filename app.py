@@ -1851,6 +1851,51 @@ def api_update_housekeeping_status(id):
     return jsonify(task.to_dict())
 
 # =============================================================================
+# ── API: INVENTORY ────────────────────────────────────────────────────────────
+# =============================================================================
+
+@app.route('/api/inventory', methods=['GET'])
+@jwt_required()
+def api_list_inventory():
+    items = InventoryItem.query.all()
+    return jsonify([i.to_dict() for i in items])
+
+
+@app.route('/api/inventory', methods=['POST'])
+@jwt_required()
+@module_required('inventory')
+def api_create_inventory_item():
+    data = request.get_json()
+    if not data or not data.get('name') or not data.get('unit'):
+        return jsonify({'error': 'name and unit are required'}), 400
+
+    item = InventoryItem(
+        name=data['name'],
+        unit=data['unit'],
+        quantity=float(data.get('quantity', 0)),
+        reorder_level=float(data.get('reorder_level', 0)),
+        used_by=data.get('used_by', 'shared')
+    )
+    db.session.add(item)
+    db.session.commit()
+    return jsonify(item.to_dict()), 201
+
+
+@app.route('/api/inventory/<int:id>/adjust', methods=['PUT'])
+@jwt_required()
+@module_required('inventory')
+def api_adjust_inventory(id):
+    """স্টক in/out — change positive হলে stock বাড়বে, negative হলে কমবে"""
+    item = InventoryItem.query.get_or_404(id)
+    data = request.get_json() or {}
+    change = float(data.get('change', 0))
+    reason = data.get('reason', 'adjustment')
+
+    item.quantity += change
+    db.session.add(StockMovement(item_id=item.id, change=change, reason=reason))
+    db.session.commit()
+    return jsonify(item.to_dict())
+# =============================================================================
 # ── API: NOTIFICATIONS ────────────────────────────────────────────────────────
 # =============================================================================
 
