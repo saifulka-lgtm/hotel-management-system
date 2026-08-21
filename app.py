@@ -17,7 +17,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date, timedelta
 from sqlalchemy import func
 from flasgger import Swagger
-
+from models.service_request import ServiceRequest
 from config import Config
 from extensions import db, login_manager, migrate, jwt
 
@@ -1849,6 +1849,65 @@ def api_update_housekeeping_status(id):
 
     db.session.commit()
     return jsonify(task.to_dict())
+
+# =============================================================================
+# ── API: IN-ROOM SERVICE REQUESTS ─────────────────────────────────────────────
+# =============================================================================
+
+@app.route('/api/service-requests', methods=['GET'])
+@jwt_required()
+def api_list_service_requests():
+    requests_list = ServiceRequest.query.order_by(ServiceRequest.created_at.desc()).all()
+    return jsonify([r.to_dict() for r in requests_list])
+
+
+@app.route('/api/service-requests', methods=['POST'])
+@jwt_required()
+def api_create_service_request():
+    data = request.get_json()
+    if not data or not data.get('booking_id') or not data.get('request_type'):
+        return jsonify({'error': 'booking_id and request_type are required'}), 400
+
+    booking = Booking.query.get(data['booking_id'])
+    if not booking:
+        return jsonify({'error': 'Booking not found'}), 404
+
+    req = ServiceRequest(
+        booking_id=booking.id,
+        room_id=booking.room_id,
+        request_type=data['request_type'],
+        details=data.get('details', '')
+    )
+    db.session.add(req)
+
+    db.session.add(Notification(
+        title='New Service Request',
+        message=f'Room {booking.room.room_number} requested {data["request_type"]}',
+        category='service_request'
+    ))
+
+    db.session.commit()
+    return jsonify(req.to_dict()), 201
+
+
+@app.route('/api/service-requests/<int:id>/status', methods=['PUT'])
+@jwt_required()
+@module_required('hotel')
+def api_update_service_request_status(id):
+    req = ServiceRequest.query.get_or_404(id)
+    data = request.get_json() or {}
+    new_status = data.get('status')
+
+    valid_statuses = ['pending', 'in_progress', 'completed']
+    if new_status not in valid_statuses:
+        return jsonify({'error': f'status must be one of {valid_statuses}'}), 400
+
+    req.status = new_status
+    if new_status == 'completed':
+        req.completed_at = datetime.utcnow()
+
+    db.session.commit()
+    return jsonify(req.to_dict())
 
 # =============================================================================
 # ── API: INVENTORY ────────────────────────────────────────────────────────────
