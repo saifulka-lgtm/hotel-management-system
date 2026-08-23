@@ -1,22 +1,46 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const menu = [
-  { path: '/dashboard',  icon: '📊', label: 'Dashboard'  },
-  { path: '/rooms',      icon: '🛏️', label: 'Rooms'      },
-  { path: '/bookings',   icon: '📋', label: 'Bookings'   },
-  { path: '/restaurant', icon: '🍽️', label: 'Restaurant' },
-  { path: '/delivery',   icon: '🛵', label: 'Delivery'   },
-  { path: '/customers',  icon: '👥', label: 'Customers'  },
-  { path: '/payments',   icon: '💳', label: 'Payments'   },
-  { path: '/reports',    icon: '📈', label: 'Reports'    },
-  { path: '/notifications', icon: '🔔', label: 'Notifications' },
-  { path: '/housekeeping', icon: '🧹', label: 'Housekeeping' },
-  { path: '/menu', icon: '🍲', label: 'Menu' },
-  { path: '/waiter-assignments', icon: '🧑‍🍳', label: 'Waiter Duty' },
-  { path: '/employees', icon: '👥', label: 'Staff & Roles' },
-  { path: '/inventory', icon: '📦', label: 'Inventory' },
-  { path: '/service-requests', icon: '🛎️', label: 'Service Requests' },
+const menuGroups = [
+  {
+    label: 'MAIN',
+    items: [
+      { path: '/dashboard', icon: '📊', label: 'Dashboard' },
+    ],
+  },
+  {
+    label: 'HOTEL',
+    items: [
+      { path: '/rooms',       icon: '🛏️', label: 'Rooms' },
+      { path: '/bookings',    icon: '📋', label: 'Bookings' },
+      { path: '/customers',   icon: '👥', label: 'Customers' },
+      { path: '/housekeeping',icon: '🧹', label: 'Housekeeping' },
+      { path: '/service-requests', icon: '🛎️', label: 'Service Requests' },
+    ],
+  },
+  {
+    label: 'RESTAURANT',
+    items: [
+      { path: '/restaurant',      icon: '🍽️', label: 'Orders' },
+      { path: '/menu',            icon: '🍲', label: 'Menu' },
+      { path: '/waiter-assignments', icon: '🧑‍🍳', label: 'Waiter Duty' },
+    ],
+  },
+  {
+    label: 'DELIVERY',
+    items: [
+      { path: '/delivery', icon: '🛵', label: 'Delivery' },
+    ],
+  },
+  {
+    label: 'ADMIN',
+    items: [
+      { path: '/employees', icon: '👤', label: 'Staff & Roles' },
+      { path: '/inventory', icon: '📦', label: 'Inventory' },
+      { path: '/payments',  icon: '💳', label: 'Payments' },
+      { path: '/reports',   icon: '📈', label: 'Reports' },
+    ],
+  },
 ];
 
 export default function Sidebar() {
@@ -27,50 +51,64 @@ export default function Sidebar() {
       width: '240px', minHeight: '100vh',
       background: '#1F3A5F', color: 'white',
       display: 'flex', flexDirection: 'column',
-      position: 'sticky', top: 0, height: '100vh'
+      position: 'sticky', top: 0, height: '100vh',
+      overflowY: 'auto'
     }}>
 
       {/* Logo */}
-      <div style={{ padding: '24px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        <div style={{ fontSize: '20px', fontWeight: '700', color: '#FF2147' }}>
-          🏨 Enterprise Hospitality Platform
-        </div>
-        <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '4px' }}>
-          Management System
+      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <img src="/logo.png" alt="Logo" style={{ width: '36px', height: '36px', objectFit: 'contain' }} />
+          <div>
+            <div style={{ fontSize: '16px', fontWeight: '700', color: '#FF2147', lineHeight: '1.2' }}>
+              Enterprise Hospitality
+            </div>
+            <div style={{ fontSize: '11px', color: '#94a3b8' }}>Management System</div>
+          </div>
         </div>
       </div>
 
-      {/* Menu */}
-      <nav style={{ flex: 1, padding: '16px 12px' }}>
-        {menu.map(item => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            style={({ isActive }) => ({
-              display: 'flex', alignItems: 'center', gap: '12px',
-              padding: '12px 16px', borderRadius: '8px',
-              marginBottom: '4px', textDecoration: 'none',
-              fontSize: '14px', fontWeight: '500',
-              background: isActive ? '#FF2147' : 'transparent',
-              color: isActive ? 'white' : '#cbd5e1',
-              transition: 'all 0.2s',
-            })}
-          >
-            <span>{item.icon}</span>
-            <span>{item.label}</span>
-          </NavLink>
+      {/* Menu — grouped */}
+      <nav style={{ flex: 1, padding: '12px 10px' }}>
+        {menuGroups.map(group => (
+          <div key={group.label} style={{ marginBottom: '14px' }}>
+            <div style={{
+              fontSize: '10px', fontWeight: '700', color: '#64748b',
+              letterSpacing: '0.8px', padding: '0 10px 6px'
+            }}>
+              {group.label}
+            </div>
+            {group.items.map(item => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                style={({ isActive }) => ({
+                  display: 'flex', alignItems: 'center', gap: '10px',
+                  padding: '9px 12px', borderRadius: '8px',
+                  marginBottom: '2px', textDecoration: 'none',
+                  fontSize: '13px', fontWeight: '500',
+                  background: isActive ? '#FF2147' : 'transparent',
+                  color: isActive ? 'white' : '#cbd5e1',
+                  transition: 'all 0.2s',
+                })}
+              >
+                <span style={{ fontSize: '15px' }}>{item.icon}</span>
+                <span>{item.label}</span>
+              </NavLink>
+            ))}
+          </div>
         ))}
       </nav>
 
       {/* User + Logout */}
-      <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-        <div style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '10px' }}>
+      <div style={{ padding: '14px 16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '8px' }}>
           👤 {admin?.username}
         </div>
         <button
           onClick={logout}
           className="btn btn-danger"
-          style={{ width: '100%', fontSize: '13px' }}
+          style={{ width: '100%', fontSize: '12px', padding: '8px' }}
         >
           🚪 Logout
         </button>
