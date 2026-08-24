@@ -46,7 +46,7 @@ export default function Login() {
             }}
           />
           <h2 style={{ color: '#e8193c', margin: '8px 0 4px' }}>
-            Smart Hotel BD
+            Enterprise Hospitality Platform
           </h2>
           <p style={{ color: '#64748b', fontSize: '14px' }}>
             Admin Panel Login

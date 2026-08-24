@@ -1,12 +1,12 @@
 import { useLocation } from 'react-router-dom';
 
 const titles = {
-  '/dashboard': 'Dashboard',
-  '/rooms':     'Rooms',
-  '/bookings':  'Bookings',
-  '/customers': 'Customers',
-  '/payments':  'Payments',
-  '/reports':   'Financial Reports',
+  '/dashboard': { icon: '📊', title: 'Dashboard'         },
+  '/rooms':     { icon: '🛏️', title: 'Rooms'             },
+  '/bookings':  { icon: '📋', title: 'Bookings'          },
+  '/customers': { icon: '👥', title: 'Customers'         },
+  '/payments':  { icon: '💳', title: 'Payments'          },
+  '/reports':   { icon: '📈', title: 'Financial Reports' },
 };
 
 export default function Navbar() {

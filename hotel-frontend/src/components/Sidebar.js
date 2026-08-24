@@ -79,7 +79,7 @@ export default function Sidebar() {
         color: '#e8193c', lineHeight: '1.3',
         whiteSpace: 'nowrap'
       }}>
-        Smart Hotel BD
+        Enterprise Hospitality Platform
       </div>
       <div style={{ fontSize:'10px', color:'#94a3b8' }}>
         Management System
