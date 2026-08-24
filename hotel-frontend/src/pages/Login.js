@@ -4,10 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 export default function Login() {
-  const [form, setForm]       = useState({ username: '', password: '' });
+  const [form,    setForm]    = useState({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
-  const { login }             = useAuth();
-  const navigate              = useNavigate();
+  const { login }  = useAuth();
+  const navigate   = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,12 +30,30 @@ export default function Login() {
       background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
     }}>
       <div className="card" style={{ width: '380px' }}>
+
+        {/* ── Logo Section ── */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ fontSize: '40px' }}>🏨</div>
-          <h2 style={{ color: '#c8973a', margin: '8px 0 4px' }}>Enterprise Hospitality Platform</h2>
-          <p style={{ color: '#64748b', fontSize: '14px' }}>Admin Login</p>
+          <img
+            src="/logo.png"
+            alt="Logo"
+            style={{
+              width: '80px',
+              height: '80px',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              marginBottom: '12px',
+              boxShadow: '0 4px 16px rgba(232,25,60,0.3)'
+            }}
+          />
+          <h2 style={{ color: '#e8193c', margin: '8px 0 4px' }}>
+            Smart Hotel BD
+          </h2>
+          <p style={{ color: '#64748b', fontSize: '14px' }}>
+            Admin Panel Login
+          </p>
         </div>
 
+        {/* ── Form ── */}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Username</label>
@@ -66,6 +84,13 @@ export default function Login() {
             {loading ? '⏳ Logging in...' : '🔐 Login'}
           </button>
         </form>
+
+        <p style={{
+          textAlign: 'center', marginTop: '16px',
+          fontSize: '13px', color: '#64748b'
+        }}>
+          Default: admin / admin123
+        </p>
       </div>
     </div>
   );

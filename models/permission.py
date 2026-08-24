@@ -21,6 +21,8 @@ ROLE_MODULE_MAP = {
     'kitchen':        ['restaurant_kitchen'],
     'waiter':         ['restaurant'],
     'delivery_staff': ['delivery'],
+    'admin':   ['hotel', 'hotel_housekeeping', 'restaurant', 'restaurant_kitchen', 'delivery', 'inventory', 'reports', 'staff_management'],
+    'manager': ['hotel', 'hotel_housekeeping', 'restaurant', 'delivery', 'inventory', 'reports'],
 }
 
 def seed_permissions():

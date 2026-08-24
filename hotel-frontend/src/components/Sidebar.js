@@ -55,18 +55,38 @@ export default function Sidebar() {
       overflowY: 'auto'
     }}>
 
-      {/* Logo */}
-      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img src="/logo.png" alt="Logo" style={{ width: '36px', height: '36px', objectFit: 'contain' }} />
-          <div>
-            <div style={{ fontSize: '16px', fontWeight: '700', color: '#FF2147', lineHeight: '1.2' }}>
-              Enterprise Hospitality
-            </div>
-            <div style={{ fontSize: '11px', color: '#94a3b8' }}>Management System</div>
-          </div>
-        </div>
+      {/* ── Logo ── */}
+<div style={{
+  padding: '18px 16px',
+  borderBottom: '1px solid #f1f5f9',
+  flexShrink: 0
+}}>
+  <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+    <img
+      src="/logo.png"
+      alt="Logo"
+      style={{
+        width: '38px',
+        height: '38px',
+        borderRadius: '50%',
+        objectFit: 'cover',
+        flexShrink: 0
+      }}
+    />
+    <div style={{ overflow:'hidden' }}>
+      <div style={{
+        fontSize: '13px', fontWeight: '700',
+        color: '#e8193c', lineHeight: '1.3',
+        whiteSpace: 'nowrap'
+      }}>
+        Smart Hotel BD
       </div>
+      <div style={{ fontSize:'10px', color:'#94a3b8' }}>
+        Management System
+      </div>
+    </div>
+  </div>
+</div>
 
       {/* Menu — grouped */}
       <nav style={{ flex: 1, padding: '12px 10px' }}>

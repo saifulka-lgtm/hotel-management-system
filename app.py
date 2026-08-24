@@ -14,7 +14,7 @@ from flask_jwt_extended import (
     jwt_required, get_jwt_identity, get_jwt
 )
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime, date, timedelta
+from date import date, date, delta
 from sqlalchemy import func
 from flasgger import Swagger
 from models.service_request import ServiceRequest
@@ -221,7 +221,7 @@ def is_room_available(room_id, checkin, checkout, exclude_booking_id=None):
     query = Booking.query.filter(
         Booking.room_id == room_id,
         Booking.booking_status != 'Cancelled',
-        Booking.checkin_date < checkout,
+        Booking.checkin_< checkout,
         Booking.checkout_date > checkin
     )
     if exclude_booking_id:
@@ -284,7 +284,7 @@ def dashboard():
 
     chart_labels, chart_data = [], []
     for i in range(5, -1, -1):
-        m   = (td.replace(day=1) - timedelta(days=30 * i))
+        m   = (td.replace(day=1) - delta(days=30 * i))
         ms  = m.replace(day=1)
         me  = (ms + timedelta(days=32)).replace(day=1)
         rev = db.session.query(func.coalesce(func.sum(Payment.paid_amount), 0))\
