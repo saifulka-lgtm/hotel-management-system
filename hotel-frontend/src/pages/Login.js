@@ -34,17 +34,15 @@ export default function Login() {
         {/* ── Logo Section ── */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <img
-            src="/logo.png"
-            alt="Logo"
+           src="/logo.png"
+           alt="Logo"
             style={{
               width: '80px',
               height: '80px',
-              borderRadius: '50%',
-              objectFit: 'cover',
+              objectFit: 'contain',
               marginBottom: '12px',
-              boxShadow: '0 4px 16px rgba(232,25,60,0.3)'
-            }}
-          />
+             }}
+            />
           <h2 style={{ color: '#e8193c', margin: '8px 0 4px' }}>
             Enterprise Hospitality Platform
           </h2>
