@@ -18,6 +18,7 @@ import WaiterAssignments from './pages/WaiterAssignments';
 import Employees from './pages/Employees';
 import Inventory from './pages/Inventory';
 import ServiceRequests from './pages/ServiceRequests';
+import Invoice from './pages/Invoice';
 
 export default function App() {
   return (
@@ -42,6 +43,7 @@ export default function App() {
             <Route path="waiter-assignments" element={<WaiterAssignments />} />
             <Route path="employees" element={<Employees />} />
             <Route path="service-requests" element={<ServiceRequests />} />
+            <Route path="invoice/:id" element={<Invoice />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" />} />
           <Route path="inventory" element={<Inventory />} />

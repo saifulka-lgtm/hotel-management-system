@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 export default function Bookings() {
+  const navigate = useNavigate();
   const [bookings, setBookings] = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -262,8 +264,14 @@ export default function Bookings() {
                         </button>
                       )}
                       {b.status === 'Completed' && (
-                        <span style={{ fontSize:'12px', color:'#22c55e' }}>✅ Done</span>
-                      )}
+                      <button
+                      className="btn btn-info"
+                      style={{ padding:'5px 10px', fontSize:'11px' }}
+                      onClick={() => navigate(`/invoice/${b.id}`)}
+                      >
+                    🧾 Invoice
+                    </button>
+                    )}
                     </div>
                   </td>
                 </tr>
