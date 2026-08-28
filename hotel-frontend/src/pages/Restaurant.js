@@ -132,7 +132,7 @@ export default function Restaurant() {
       </div>
 
       {/* Table status overview */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '16px', marginBottom: '24px' }}>
+      <div className="stat-grid">
         {tables.map(t => (
           <div key={t.id} className="card" style={{
             padding: '16px',
