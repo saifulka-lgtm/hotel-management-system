@@ -224,3 +224,41 @@ label {
 }
 
 .search-box:focus { border-color: var(--brand-navy); }
+/* ── Enhanced visual polish — Dashboard ── */
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+  border-top: 4px solid var(--stat-color, var(--brand-navy));
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+}
+
+.gradient-banner {
+  background: linear-gradient(135deg, var(--brand-navy) 0%, #2c4d7a 60%, var(--brand-red) 140%);
+  border-radius: 16px;
+  padding: 28px 32px;
+  color: white;
+  box-shadow: 0 8px 24px rgba(31, 58, 95, 0.25);
+}
+
+.page-header h2 {
+  position: relative;
+  padding-left: 14px;
+}
+
+.page-header h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 5px;
+  background: var(--brand-red);
+  border-radius: 3px;
+}

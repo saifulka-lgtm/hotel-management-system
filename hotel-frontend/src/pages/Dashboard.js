@@ -39,8 +39,16 @@ export default function Dashboard() {
     <div>
       {/* Stat Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '16px', marginBottom: '24px' }}>
+        <div className="gradient-banner" style={{ marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '4px' }}>
+           Welcome back, Admin 👋
+            </h2>
+              <p style={{ fontSize: '14px', opacity: 0.85 }}>
+              Here's what's happening across your hotel, restaurant, and delivery operations today.
+              </p>
+        </div>
         {statCards.map(s => (
-          <div key={s.label} className="card" style={{ borderLeft: `4px solid ${s.color}` }}>
+            <div key={s.label} className="stat-card" style={{ '--stat-color': s.color }}>
             <div style={{ fontSize: '24px', marginBottom: '8px' }}>{s.icon}</div>
             <div style={{ fontSize: '28px', fontWeight: '700', color: s.color }}>
               {s.value ?? '...'}
