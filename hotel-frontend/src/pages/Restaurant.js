@@ -12,7 +12,7 @@ export default function Restaurant() {
   const [form, setForm] = useState({
     table_id: '',
     customer_name: '',
-    items: []   // [{menu_item_id, quantity}]
+    items: []
   });
 
   const fetchOrders = () => {
@@ -46,7 +46,6 @@ export default function Restaurant() {
     return t ? t.table_number : '—';
   };
 
-  // ── আইটেম যোগ/বিয়োগ করার হেল্পার ──
   const addItem = (menuItemId) => {
     setForm(prev => {
       const existing = prev.items.find(i => i.menu_item_id === menuItemId);
@@ -153,62 +152,64 @@ export default function Restaurant() {
             ⏳ Loading orders...
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>Table</th>
-                <th>Customer</th>
-                <th>Items</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.length === 0 ? (
+          <div className="table-wrapper">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                    No orders yet
-                  </td>
+                  <th>Order ID</th>
+                  <th>Table</th>
+                  <th>Customer</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Action</th>
                 </tr>
-              ) : orders.map(o => (
-                <tr key={o.id}>
-                  <td style={{ fontWeight: '700' }}>#{o.id}</td>
-                  <td>{getTableNumber(o.table_id)}</td>
-                  <td>{o.customer_name || '—'}</td>
-                  <td>{o.items?.length || 0} item(s)</td>
-                  <td style={{ color: '#1F3A5F', fontWeight: '600' }}>
-                    ৳{o.total_amount?.toLocaleString()}
-                  </td>
-                  <td>
-                    <span style={{
-                      padding: '4px 12px', borderRadius: '20px',
-                      fontSize: '12px', fontWeight: '600',
-                      background: statusColor[o.status]?.bg || '#f1f5f9',
-                      color: statusColor[o.status]?.color || '#64748b'
-                    }}>
-                      {o.status}
-                    </span>
-                  </td>
-                  <td>
-                    {nextStatus[o.status] && (
-                      <button
-                        className="btn btn-info"
-                        style={{ padding: '5px 10px', fontSize: '11px' }}
-                        onClick={() => handleStatusChange(o.id, nextStatus[o.status])}
-                      >
-                        → {nextStatus[o.status]}
-                      </button>
-                    )}
-                    {o.status === 'billed' && (
-                      <span style={{ fontSize: '12px', color: '#22c55e' }}>✅ Done</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {orders.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                      No orders yet
+                    </td>
+                  </tr>
+                ) : orders.map(o => (
+                  <tr key={o.id}>
+                    <td style={{ fontWeight: '700' }}>#{o.id}</td>
+                    <td>{getTableNumber(o.table_id)}</td>
+                    <td>{o.customer_name || '—'}</td>
+                    <td>{o.items?.length || 0} item(s)</td>
+                    <td style={{ color: '#1F3A5F', fontWeight: '600' }}>
+                      ৳{o.total_amount?.toLocaleString()}
+                    </td>
+                    <td>
+                      <span style={{
+                        padding: '4px 12px', borderRadius: '20px',
+                        fontSize: '12px', fontWeight: '600',
+                        background: statusColor[o.status]?.bg || '#f1f5f9',
+                        color: statusColor[o.status]?.color || '#64748b'
+                      }}>
+                        {o.status}
+                      </span>
+                    </td>
+                    <td>
+                      {nextStatus[o.status] && (
+                        <button
+                          className="btn btn-info"
+                          style={{ padding: '5px 10px', fontSize: '11px' }}
+                          onClick={() => handleStatusChange(o.id, nextStatus[o.status])}
+                        >
+                          → {nextStatus[o.status]}
+                        </button>
+                      )}
+                      {o.status === 'billed' && (
+                        <span style={{ fontSize: '12px', color: '#22c55e' }}>✅ Done</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
