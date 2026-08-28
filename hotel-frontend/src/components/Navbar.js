@@ -115,13 +115,13 @@ export default function Navbar({ onMenuClick, showMenuButton }) {
         {/* Date/Time */}
         <div className="navbar-date-pill" style={{
           display: 'flex', alignItems: 'center', gap: '6px',
-          fontSize: '12px', color: '#64748b',
-          background: '#f8fafc', padding: '6px 12px',
-          borderRadius: '20px', border: '1px solid #e2e8f0'
-        }}>
-          <span>📍</span>
-          <span>Bangladesh · {now}</span>
-        </div>
+            fontSize: '12px', color: '#64748b',
+            background: '#f8fafc', padding: '6px 12px',
+             borderRadius: '20px', border: '1px solid #e2e8f0'
+            }}>
+            <span>🕐</span>
+            <span>{now}</span>
+          </div>
 
         {/* Notification Bell */}
         <div style={{ position: 'relative' }}>

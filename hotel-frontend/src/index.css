@@ -289,9 +289,6 @@ label {
    MOBILE — 768px এবং তার নিচে (ট্যাবলেট/বড় ফোন)
    ========================================================= */
 @media (max-width: 768px) {
-  .navbar-date-pill {
-    display: none;
-  }
 
   .page-header {
     flex-direction: column;
