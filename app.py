@@ -14,7 +14,7 @@ from flask_jwt_extended import (
     jwt_required, get_jwt_identity, get_jwt
 )
 from werkzeug.security import generate_password_hash, check_password_hash
-from date import date, date, delta
+from datetime import datetime, date, timedelta
 from sqlalchemy import func
 from flasgger import Swagger
 from models.service_request import ServiceRequest
