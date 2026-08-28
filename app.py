@@ -133,6 +133,7 @@ from models.supplier import Supplier
 from models.inventory import InventoryItem, StockMovement
 from models.notification import Notification, notify
 from models.housekeeping import HousekeepingTask
+from models.table_reservation import TableReservation
 
 # ── Utils (RBAC) ──────────────────────────────────────────────────────────────
 from utils.auth_decorators import module_required
@@ -1501,6 +1502,85 @@ def api_update_restaurant_order_status(id):
 
     db.session.commit()
     return jsonify(order.to_dict())
+
+# =============================================================================
+# ── API: TABLE RESERVATIONS ───────────────────────────────────────────────────
+# =============================================================================
+
+@app.route('/api/restaurant/reservations', methods=['GET'])
+@jwt_required()
+def api_list_reservations():
+    reservations = TableReservation.query.filter(
+        TableReservation.status != 'cancelled'
+    ).order_by(TableReservation.reservation_date, TableReservation.reservation_time).all()
+    return jsonify([r.to_dict() for r in reservations])
+
+
+@app.route('/api/restaurant/reservations', methods=['POST'])
+@jwt_required()
+@module_required('restaurant')
+def api_create_reservation():
+    data = request.get_json()
+    if not data or not data.get('table_id') or not data.get('customer_name') \
+       or not data.get('reservation_date') or not data.get('reservation_time'):
+        return jsonify({'error': 'table_id, customer_name, reservation_date, reservation_time প্রয়োজন'}), 400
+
+    table = RestaurantTable.query.get(data['table_id'])
+    if not table:
+        return jsonify({'error': 'Table not found'}), 404
+
+    try:
+        res_date = datetime.strptime(data['reservation_date'], '%Y-%m-%d').date()
+    except ValueError:
+        return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+
+    # একই টেবিল, একই তারিখ ও সময়ে আগে থেকে reservation আছে কিনা চেক
+    existing = TableReservation.query.filter_by(
+        table_id=table.id,
+        reservation_date=res_date,
+        reservation_time=data['reservation_time']
+    ).filter(TableReservation.status != 'cancelled').first()
+
+    if existing:
+        return jsonify({'error': 'এই টেবিল ওই তারিখ ও সময়ে ইতিমধ্যে reserved'}), 400
+
+    reservation = TableReservation(
+        table_id=table.id,
+        customer_name=data['customer_name'],
+        customer_phone=data.get('customer_phone', ''),
+        reservation_date=res_date,
+        reservation_time=data['reservation_time'],
+        party_size=data.get('party_size', 2),
+        notes=data.get('notes', '')
+    )
+    db.session.add(reservation)
+
+    db.session.add(Notification(
+        title='New Table Reservation',
+        message=f'{data["customer_name"]} reserved {table.table_number} on {res_date} at {data["reservation_time"]}',
+        category='reservation'
+    ))
+
+    db.session.commit()
+    return jsonify(reservation.to_dict()), 201
+
+
+@app.route('/api/restaurant/reservations/<int:id>/status', methods=['PUT'])
+@jwt_required()
+@module_required('restaurant')
+def api_update_reservation_status(id):
+    reservation = TableReservation.query.get_or_404(id)
+    data = request.get_json() or {}
+    new_status = data.get('status')
+
+    valid_statuses = ['confirmed', 'seated', 'completed', 'cancelled']
+    if new_status not in valid_statuses:
+        return jsonify({'error': f'status must be one of {valid_statuses}'}), 400
+
+    reservation.status = new_status
+    db.session.commit()
+    return jsonify(reservation.to_dict())
+
 # =============================================================================
 # ── API: WAITER ASSIGNMENT ────────────────────────────────────────────────────
 # =============================================================================

@@ -24,6 +24,7 @@ const menuGroups = [
       { path: '/restaurant',      icon: '🍽️', label: 'Orders' },
       { path: '/menu',            icon: '🍲', label: 'Menu' },
       { path: '/waiter-assignments', icon: '🧑‍🍳', label: 'Waiter Duty' },
+      { path: '/table-reservations', icon: '📅', label: 'Reservations' },
     ],
   },
   {
