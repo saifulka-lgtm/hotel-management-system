@@ -84,62 +84,64 @@ export default function Menu() {
             ⏳ Loading...
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.length === 0 ? (
+          <div className="table-wrapper">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                    No menu items
-                  </td>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  <th>Action</th>
                 </tr>
-              ) : items.map(m => (
-                <tr key={m.id}>
-                  <td style={{ fontWeight: '700' }}>#{m.id}</td>
-                  <td>{m.name}</td>
-                  <td>{m.category || '—'}</td>
-                  <td style={{ color: '#1F3A5F', fontWeight: '600' }}>৳{m.price}</td>
-                  <td>
-                    <span style={{
-                      padding: '4px 12px', borderRadius: '20px',
-                      fontSize: '12px', fontWeight: '600',
-                      background: m.is_available ? '#dcfce7' : '#fee2e2',
-                      color: m.is_available ? '#16a34a' : '#dc2626'
-                    }}>
-                      {m.is_available ? 'Available' : 'Unavailable'}
-                    </span>
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                      <button
-                        className="btn btn-info"
-                        style={{ padding: '5px 10px', fontSize: '11px' }}
-                        onClick={() => openEdit(m)}
-                      >
-                        ✏️ Edit
-                      </button>
-                      <button
-                        className="btn btn-secondary"
-                        style={{ padding: '5px 10px', fontSize: '11px' }}
-                        onClick={() => toggleAvailability(m)}
-                      >
-                        {m.is_available ? '🚫 Disable' : '✅ Enable'}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {items.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                      No menu items
+                    </td>
+                  </tr>
+                ) : items.map(m => (
+                  <tr key={m.id}>
+                    <td style={{ fontWeight: '700' }}>#{m.id}</td>
+                    <td>{m.name}</td>
+                    <td>{m.category || '—'}</td>
+                    <td style={{ color: '#1F3A5F', fontWeight: '600' }}>৳{m.price}</td>
+                    <td>
+                      <span style={{
+                        padding: '4px 12px', borderRadius: '20px',
+                        fontSize: '12px', fontWeight: '600',
+                        background: m.is_available ? '#dcfce7' : '#fee2e2',
+                        color: m.is_available ? '#16a34a' : '#dc2626'
+                      }}>
+                        {m.is_available ? 'Available' : 'Unavailable'}
+                      </span>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button
+                          className="btn btn-info"
+                          style={{ padding: '5px 10px', fontSize: '11px' }}
+                          onClick={() => openEdit(m)}
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
+                          className="btn btn-secondary"
+                          style={{ padding: '5px 10px', fontSize: '11px' }}
+                          onClick={() => toggleAvailability(m)}
+                        >
+                          {m.is_available ? '🚫 Disable' : '✅ Enable'}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
