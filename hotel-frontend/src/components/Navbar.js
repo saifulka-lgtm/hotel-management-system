@@ -37,7 +37,7 @@ export default function Navbar({ onMenuClick, showMenuButton }) {
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000); // প্রতি ৩০ সেকেন্ডে auto-refresh
+    const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -86,36 +86,29 @@ export default function Navbar({ onMenuClick, showMenuButton }) {
       position: 'sticky', top: 0, zIndex: 100,
       boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
     }}>
-    <div style={{
-      background: 'white', padding: '0 24px', height: '60px',
-      borderBottom: '1px solid #e2e8f0',
-      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      position: 'sticky', top: 0, zIndex: 100,
-      boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
-    }}>
 
-    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-    {showMenuButton && (
-      <button
-        onClick={onMenuClick}
-        style={{
-          background: 'none', border: 'none', fontSize: '22px',
-          cursor: 'pointer', color: '#1F3A5F', padding: '4px'
-        }}
-      >
-        ☰
-      </button>
-    )}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {showMenuButton && (
+          <button
+            onClick={onMenuClick}
+            style={{
+              background: 'none', border: 'none', fontSize: '22px',
+              cursor: 'pointer', color: '#1F3A5F', padding: '4px'
+            }}
+          >
+            ☰
+          </button>
+        )}
 
-    {/* Page Title */}
-    <h1 style={{
-      fontSize: '18px', fontWeight: '700', color: '#1e293b',
-      display: 'flex', alignItems: 'center', gap: '8px'
-    }}>
-      <span>{page.icon}</span>
-      <span>{page.title}</span>
-    </h1>
-  </div>
+        <h1 style={{
+          fontSize: '18px', fontWeight: '700', color: '#1e293b',
+          display: 'flex', alignItems: 'center', gap: '8px'
+        }}>
+          <span>{page.icon}</span>
+          <span>{page.title}</span>
+        </h1>
+      </div>
+
       {/* Right Side */}
       <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
 
