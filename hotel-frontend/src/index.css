@@ -262,3 +262,47 @@ label {
   background: var(--brand-red);
   border-radius: 3px;
 }
+/* ── Mobile Responsiveness Fix ── */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+#root {
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .page-header h2 {
+    font-size: 18px;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-box {
+    width: 92vw;
+    padding: 20px;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  /* Table-কে horizontally scrollable করা, কিন্তু পুরো page না */
+  .card {
+    padding: 16px;
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 600px;
+  }
+}
