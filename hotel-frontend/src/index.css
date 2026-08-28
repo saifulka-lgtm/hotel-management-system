@@ -17,6 +17,15 @@ body {
   color: #1e293b;
 }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+#root {
+  overflow-x: hidden;
+}
+
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #f1f5f9; }
 ::-webkit-scrollbar-thumb { background: var(--brand-navy); border-radius: 3px; }
@@ -70,6 +79,13 @@ body {
 .btn-info     { background: #3b82f6; color: white; }
 .btn-info:hover     { background: #2563eb; }
 
+/* Table-কে একটা wrapper-এর ভেতরে scroll করানো হবে (page না, শুধু table নিজে প্রয়োজনে) */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 table { width: 100%; border-collapse: collapse; }
 
 table th {
@@ -82,6 +98,7 @@ table th {
   text-transform: uppercase;
   letter-spacing: 0.6px;
   border-bottom: 2px solid #eef1f5;
+  white-space: nowrap;
 }
 
 table td {
@@ -211,6 +228,19 @@ label {
   font-size: 22px;
   font-weight: 700;
   color: #1e293b;
+  position: relative;
+  padding-left: 14px;
+}
+
+.page-header h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 5px;
+  background: var(--brand-red);
+  border-radius: 3px;
 }
 
 .search-box {
@@ -224,6 +254,7 @@ label {
 }
 
 .search-box:focus { border-color: var(--brand-navy); }
+
 /* ── Enhanced visual polish — Dashboard ── */
 .stat-card {
   background: white;
@@ -247,68 +278,6 @@ label {
   box-shadow: 0 8px 24px rgba(31, 58, 95, 0.25);
 }
 
-.page-header h2 {
-  position: relative;
-  padding-left: 14px;
-}
-
-.page-header h2::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 2px;
-  bottom: 2px;
-  width: 5px;
-  background: var(--brand-red);
-  border-radius: 3px;
-}
-/* ── Mobile Responsiveness Fix ── */
-html, body {
-  overflow-x: hidden;
-  max-width: 100%;
-}
-
-#root {
-  overflow-x: hidden;
-}
-
-@media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  .navbar-date-pill {
-  display: none;
-  }
-
-  .page-header h2 {
-    font-size: 18px;
-  }
-
-  .grid-2 {
-    grid-template-columns: 1fr;
-  }
-
-  .modal-box {
-    width: 92vw;
-    padding: 20px;
-  }
-
-  .search-box {
-    width: 100%;
-  }
-
-  /* Table-কে horizontally scrollable করা, কিন্তু পুরো page না */
-  .card {
-    padding: 16px;
-    overflow-x: auto;
-  }
-
-  table {
-    min-width: 600px;
-  }
-}
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -316,15 +285,117 @@ html, body {
   margin-bottom: 24px;
 }
 
+/* =========================================================
+   MOBILE — 768px এবং তার নিচে (ট্যাবলেট/বড় ফোন)
+   ========================================================= */
 @media (max-width: 768px) {
+  .navbar-date-pill {
+    display: none;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .page-header h2 {
+    font-size: 17px !important;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
   .stat-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
+
+  .modal-box {
+    width: 92vw;
+    padding: 16px;
+  }
+
+  .modal-header h3 {
+    font-size: 15px !important;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  main {
+    padding: 12px !important;
+  }
+
+  .card {
+    padding: 14px !important;
+    border-radius: 10px !important;
+  }
+
+  .stat-card {
+    padding: 14px !important;
+  }
+
+  /* Stat card-এর বড় সংখ্যা ছোট করা (inline style override করতে !important লাগবে) */
+  .stat-card > div:nth-child(2) {
+    font-size: 20px !important;
+  }
+
+  .gradient-banner {
+    padding: 16px 18px !important;
+  }
+
+  .gradient-banner h2 {
+    font-size: 16px !important;
+  }
+
+  /* Table — কোনো forced min-width না, শুধু ছোট font/padding, দরকার হলেই .table-wrapper scroll করবে */
+  table th {
+    font-size: 10px !important;
+    padding: 8px 10px !important;
+  }
+
+  table td {
+    font-size: 12px !important;
+    padding: 10px !important;
+  }
+
+  .btn {
+    font-size: 12px !important;
+    padding: 8px 14px !important;
+  }
+
+  input, select, textarea {
+    font-size: 13px !important;
+    padding: 9px 12px !important;
+  }
+
+  label {
+    font-size: 12px !important;
+  }
 }
 
+/* =========================================================
+   ছোট ফোন — 480px এবং তার নিচে
+   ========================================================= */
 @media (max-width: 480px) {
   .stat-grid {
     grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: 12px !important;
+  }
+
+  table th, table td {
+    font-size: 11px !important;
+    padding: 8px !important;
+  }
+
+  .page-header h2 {
+    font-size: 16px !important;
   }
 }
