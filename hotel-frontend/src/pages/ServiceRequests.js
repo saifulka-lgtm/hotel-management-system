@@ -21,7 +21,6 @@ export default function ServiceRequests() {
   useEffect(() => {
     fetchRequests();
     API.get('/api/bookings').then(r => {
-      // শুধু বর্তমানে confirmed/checked-in বুকিং দেখানো
       setBookings(r.data.filter(b => b.status === 'Confirmed'));
     }).catch(() => {});
   }, []);
@@ -80,60 +79,62 @@ export default function ServiceRequests() {
             ⏳ Loading...
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Room</th>
-                <th>Guest</th>
-                <th>Type</th>
-                <th>Details</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {requests.length === 0 ? (
+          <div className="table-wrapper">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                    No service requests yet
-                  </td>
+                  <th>ID</th>
+                  <th>Room</th>
+                  <th>Guest</th>
+                  <th>Type</th>
+                  <th>Details</th>
+                  <th>Status</th>
+                  <th>Action</th>
                 </tr>
-              ) : requests.map(r => (
-                <tr key={r.id}>
-                  <td style={{ fontWeight: '700' }}>#{r.id}</td>
-                  <td>Room {r.room_number}</td>
-                  <td>{r.guest_name || '—'}</td>
-                  <td>{typeIcon[r.request_type] || '📋'} {r.request_type}</td>
-                  <td style={{ fontSize: '13px', color: '#64748b' }}>{r.details || '—'}</td>
-                  <td>
-                    <span style={{
-                      padding: '4px 12px', borderRadius: '20px',
-                      fontSize: '12px', fontWeight: '600',
-                      background: statusColor[r.status]?.bg || '#f1f5f9',
-                      color: statusColor[r.status]?.color || '#64748b'
-                    }}>
-                      {r.status}
-                    </span>
-                  </td>
-                  <td>
-                    {nextStatus[r.status] && (
-                      <button
-                        className="btn btn-info"
-                        style={{ padding: '5px 10px', fontSize: '11px' }}
-                        onClick={() => handleStatusChange(r.id, nextStatus[r.status])}
-                      >
-                        → {nextStatus[r.status]}
-                      </button>
-                    )}
-                    {r.status === 'completed' && (
-                      <span style={{ fontSize: '12px', color: '#22c55e' }}>✅ Done</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {requests.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                      No service requests yet
+                    </td>
+                  </tr>
+                ) : requests.map(r => (
+                  <tr key={r.id}>
+                    <td style={{ fontWeight: '700' }}>#{r.id}</td>
+                    <td>Room {r.room_number}</td>
+                    <td>{r.guest_name || '—'}</td>
+                    <td>{typeIcon[r.request_type] || '📋'} {r.request_type}</td>
+                    <td style={{ fontSize: '13px', color: '#64748b' }}>{r.details || '—'}</td>
+                    <td>
+                      <span style={{
+                        padding: '4px 12px', borderRadius: '20px',
+                        fontSize: '12px', fontWeight: '600',
+                        background: statusColor[r.status]?.bg || '#f1f5f9',
+                        color: statusColor[r.status]?.color || '#64748b'
+                      }}>
+                        {r.status}
+                      </span>
+                    </td>
+                    <td>
+                      {nextStatus[r.status] && (
+                        <button
+                          className="btn btn-info"
+                          style={{ padding: '5px 10px', fontSize: '11px' }}
+                          onClick={() => handleStatusChange(r.id, nextStatus[r.status])}
+                        >
+                          → {nextStatus[r.status]}
+                        </button>
+                      )}
+                      {r.status === 'completed' && (
+                        <span style={{ fontSize: '12px', color: '#22c55e' }}>✅ Done</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 

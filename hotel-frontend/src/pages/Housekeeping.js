@@ -82,58 +82,60 @@ export default function Housekeeping() {
             ⏳ Loading...
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Task ID</th>
-                <th>Room</th>
-                <th>Type</th>
-                <th>Notes</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tasks.length === 0 ? (
+          <div className="table-wrapper">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                    No housekeeping tasks yet
-                  </td>
+                  <th>Task ID</th>
+                  <th>Room</th>
+                  <th>Type</th>
+                  <th>Notes</th>
+                  <th>Status</th>
+                  <th>Action</th>
                 </tr>
-              ) : tasks.map(t => (
-                <tr key={t.id}>
-                  <td style={{ fontWeight: '700' }}>#{t.id}</td>
-                  <td>Room {t.room_number}</td>
-                  <td style={{ textTransform: 'capitalize' }}>{t.task_type}</td>
-                  <td style={{ fontSize: '13px', color: '#64748b' }}>{t.notes || '—'}</td>
-                  <td>
-                    <span style={{
-                      padding: '4px 12px', borderRadius: '20px',
-                      fontSize: '12px', fontWeight: '600',
-                      background: statusColor[t.status]?.bg || '#f1f5f9',
-                      color: statusColor[t.status]?.color || '#64748b'
-                    }}>
-                      {t.status}
-                    </span>
-                  </td>
-                  <td>
-                    {nextStatus[t.status] && (
-                      <button
-                        className="btn btn-info"
-                        style={{ padding: '5px 10px', fontSize: '11px' }}
-                        onClick={() => handleStatusChange(t.id, nextStatus[t.status])}
-                      >
-                        → {nextStatus[t.status]}
-                      </button>
-                    )}
-                    {t.status === 'completed' && (
-                      <span style={{ fontSize: '12px', color: '#22c55e' }}>✅ Done</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {tasks.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                      No housekeeping tasks yet
+                    </td>
+                  </tr>
+                ) : tasks.map(t => (
+                  <tr key={t.id}>
+                    <td style={{ fontWeight: '700' }}>#{t.id}</td>
+                    <td>Room {t.room_number}</td>
+                    <td style={{ textTransform: 'capitalize' }}>{t.task_type}</td>
+                    <td style={{ fontSize: '13px', color: '#64748b' }}>{t.notes || '—'}</td>
+                    <td>
+                      <span style={{
+                        padding: '4px 12px', borderRadius: '20px',
+                        fontSize: '12px', fontWeight: '600',
+                        background: statusColor[t.status]?.bg || '#f1f5f9',
+                        color: statusColor[t.status]?.color || '#64748b'
+                      }}>
+                        {t.status}
+                      </span>
+                    </td>
+                    <td>
+                      {nextStatus[t.status] && (
+                        <button
+                          className="btn btn-info"
+                          style={{ padding: '5px 10px', fontSize: '11px' }}
+                          onClick={() => handleStatusChange(t.id, nextStatus[t.status])}
+                        >
+                          → {nextStatus[t.status]}
+                        </button>
+                      )}
+                      {t.status === 'completed' && (
+                        <span style={{ fontSize: '12px', color: '#22c55e' }}>✅ Done</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 

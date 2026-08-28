@@ -85,13 +85,13 @@ export default function Rooms() {
       </div>
 
       {/* Stats Row */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px', marginBottom:'24px' }}>
+      <div className="stat-grid">
         {[
           { label:'Total Rooms',    value: rooms.length,                                    color:'#3b82f6' },
           { label:'Available',      value: rooms.filter(r=>r.status==='Available').length,  color:'#22c55e' },
           { label:'Occupied',       value: rooms.filter(r=>r.status==='Occupied').length,   color:'#ef4444' },
         ].map(s => (
-          <div key={s.label} className="card" style={{ borderLeft:`4px solid ${s.color}`, padding:'16px' }}>
+          <div key={s.label} className="stat-card" style={{ '--stat-color': s.color }}>
             <div style={{ fontSize:'24px', fontWeight:'700', color:s.color }}>{s.value}</div>
             <div style={{ fontSize:'13px', color:'#64748b' }}>{s.label}</div>
           </div>
@@ -105,63 +105,65 @@ export default function Rooms() {
             ⏳ Loading rooms...
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Room No.</th>
-                <th>Type</th>
-                <th>AC</th>
-                <th>Price/Night</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rooms.length === 0 ? (
+          <div className="table-wrapper">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="6" style={{ textAlign:'center', padding:'40px', color:'#64748b' }}>
-                    No rooms found
-                  </td>
+                  <th>Room No.</th>
+                  <th>Type</th>
+                  <th>AC</th>
+                  <th>Price/Night</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              ) : rooms.map(room => (
-                <tr key={room.id}>
-                  <td style={{ fontWeight:'700', fontSize:'16px' }}>
-                    🛏️ {room.room_number}
-                  </td>
-                  <td>{room.room_type}</td>
-                  <td>{room.ac_type}</td>
-                  <td style={{ color:'#c8973a', fontWeight:'600' }}>
-                    ৳{room.price?.toLocaleString()}
-                  </td>
-                  <td>
-                    <span style={{
-                      padding:'4px 12px', borderRadius:'20px', fontSize:'12px', fontWeight:'600',
-                      background: statusColor[room.status]?.bg || '#f1f5f9',
-                      color:      statusColor[room.status]?.color || '#64748b'
-                    }}>
-                      {room.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-secondary"
-                      style={{ marginRight:'8px', padding:'6px 14px', fontSize:'12px' }}
-                      onClick={() => openEdit(room)}
-                    >
-                      ✏️ Edit
-                    </button>
-                    <button
-                      className="btn btn-danger"
-                      style={{ padding:'6px 14px', fontSize:'12px' }}
-                      onClick={() => handleDelete(room)}
-                    >
-                      🗑️ Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {rooms.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign:'center', padding:'40px', color:'#64748b' }}>
+                      No rooms found
+                    </td>
+                  </tr>
+                ) : rooms.map(room => (
+                  <tr key={room.id}>
+                    <td style={{ fontWeight:'700', fontSize:'16px' }}>
+                      🛏️ {room.room_number}
+                    </td>
+                    <td>{room.room_type}</td>
+                    <td>{room.ac_type}</td>
+                    <td style={{ color:'#1F3A5F', fontWeight:'600' }}>
+                      ৳{room.price?.toLocaleString()}
+                    </td>
+                    <td>
+                      <span style={{
+                        padding:'4px 12px', borderRadius:'20px', fontSize:'12px', fontWeight:'600',
+                        background: statusColor[room.status]?.bg || '#f1f5f9',
+                        color:      statusColor[room.status]?.color || '#64748b'
+                      }}>
+                        {room.status}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-secondary"
+                        style={{ marginRight:'8px', padding:'6px 14px', fontSize:'12px' }}
+                        onClick={() => openEdit(room)}
+                      >
+                        ✏️ Edit
+                      </button>
+                      <button
+                        className="btn btn-danger"
+                        style={{ padding:'6px 14px', fontSize:'12px' }}
+                        onClick={() => handleDelete(room)}
+                      >
+                        🗑️ Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
