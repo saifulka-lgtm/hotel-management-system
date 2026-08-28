@@ -72,64 +72,66 @@ export default function Inventory() {
             ⏳ Loading...
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Quantity</th>
-                <th>Reorder Level</th>
-                <th>Used By</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.length === 0 ? (
+          <div className="table-wrapper">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                    No inventory items
-                  </td>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Quantity</th>
+                  <th>Reorder Level</th>
+                  <th>Used By</th>
+                  <th>Status</th>
+                  <th>Action</th>
                 </tr>
-              ) : items.map(i => (
-                <tr key={i.id}>
-                  <td style={{ fontWeight: '700' }}>#{i.id}</td>
-                  <td>{i.name}</td>
-                  <td>{i.quantity} {i.unit}</td>
-                  <td>{i.reorder_level} {i.unit}</td>
-                  <td style={{ textTransform: 'capitalize' }}>{i.used_by}</td>
-                  <td>
-                    {i.low_stock ? (
-                      <span style={{
-                        padding: '4px 12px', borderRadius: '20px',
-                        fontSize: '12px', fontWeight: '600',
-                        background: '#fee2e2', color: '#dc2626'
-                      }}>
-                        ⚠️ Low Stock
-                      </span>
-                    ) : (
-                      <span style={{
-                        padding: '4px 12px', borderRadius: '20px',
-                        fontSize: '12px', fontWeight: '600',
-                        background: '#dcfce7', color: '#16a34a'
-                      }}>
-                        OK
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-info"
-                      style={{ padding: '5px 10px', fontSize: '11px' }}
-                      onClick={() => handleAdjust(i)}
-                    >
-                      ⚖️ Adjust Stock
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {items.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                      No inventory items
+                    </td>
+                  </tr>
+                ) : items.map(i => (
+                  <tr key={i.id}>
+                    <td style={{ fontWeight: '700' }}>#{i.id}</td>
+                    <td>{i.name}</td>
+                    <td>{i.quantity} {i.unit}</td>
+                    <td>{i.reorder_level} {i.unit}</td>
+                    <td style={{ textTransform: 'capitalize' }}>{i.used_by}</td>
+                    <td>
+                      {i.low_stock ? (
+                        <span style={{
+                          padding: '4px 12px', borderRadius: '20px',
+                          fontSize: '12px', fontWeight: '600',
+                          background: '#fee2e2', color: '#dc2626'
+                        }}>
+                          ⚠️ Low Stock
+                        </span>
+                      ) : (
+                        <span style={{
+                          padding: '4px 12px', borderRadius: '20px',
+                          fontSize: '12px', fontWeight: '600',
+                          background: '#dcfce7', color: '#16a34a'
+                        }}>
+                          OK
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-info"
+                        style={{ padding: '5px 10px', fontSize: '11px' }}
+                        onClick={() => handleAdjust(i)}
+                      >
+                        ⚖️ Adjust Stock
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -217,4 +219,3 @@ export default function Inventory() {
     </div>
   );
 }
-
