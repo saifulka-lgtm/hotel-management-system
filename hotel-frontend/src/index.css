@@ -278,6 +278,9 @@ html, body {
     align-items: flex-start;
     gap: 12px;
   }
+  .navbar-date-pill {
+  display: none;
+  }
 
   .page-header h2 {
     font-size: 18px;

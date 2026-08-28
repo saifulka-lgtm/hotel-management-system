@@ -113,7 +113,7 @@ export default function Navbar({ onMenuClick, showMenuButton }) {
       <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
 
         {/* Date/Time */}
-        <div style={{
+        <div className="navbar-date-pill" style={{
           display: 'flex', alignItems: 'center', gap: '6px',
           fontSize: '12px', color: '#64748b',
           background: '#f8fafc', padding: '6px 12px',

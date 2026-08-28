@@ -55,7 +55,7 @@ export default function ProtectedRoute() {
         <Sidebar onNavigate={() => isMobile && setSidebarOpen(false)} />
       </div>
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'auto', minWidth: 0 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto', overflowX: 'hidden', minWidth: 0 }}>
         <Navbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} showMenuButton={isMobile} />
         <main style={{ flex: 1, padding: isMobile ? '14px' : '24px', background: '#f1f5f9' }}>
           <Outlet />
