@@ -38,7 +38,7 @@ export default function Dashboard() {
   return (
     <div>
       {/* Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '16px', marginBottom: '24px' }}>
+      <div className="stat-grid">
         <div className="gradient-banner" style={{ marginBottom: '24px' }}>
           <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '4px' }}>
            Welcome back, Admin 👋
