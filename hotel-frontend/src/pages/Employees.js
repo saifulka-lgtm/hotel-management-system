@@ -38,13 +38,11 @@ export default function Employees() {
       return;
     }
     try {
-      // Step 1 — Admin account তৈরি
       const adminRes = await API.post('/api/auth/register', {
         username: form.username,
         password: form.password,
         role: form.role
       });
-      // Step 2 — Employee profile তৈরি
       await API.post('/api/employees', {
         admin_id: adminRes.data.id,
         full_name: form.full_name,
@@ -76,45 +74,47 @@ export default function Employees() {
             ⏳ Loading...
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Role</th>
-                <th>Department</th>
-                <th>Designation</th>
-                <th>Phone</th>
-              </tr>
-            </thead>
-            <tbody>
-              {employees.length === 0 ? (
+          <div className="table-wrapper">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                    No staff found
-                  </td>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Department</th>
+                  <th>Designation</th>
+                  <th>Phone</th>
                 </tr>
-              ) : employees.map(e => (
-                <tr key={e.id}>
-                  <td style={{ fontWeight: '700' }}>#{e.admin_id}</td>
-                  <td>{e.full_name}</td>
-                  <td>
-                    <span style={{
-                      padding: '4px 12px', borderRadius: '20px',
-                      fontSize: '12px', fontWeight: '600',
-                      background: '#e0e7ff', color: '#4338ca',
-                      textTransform: 'capitalize'
-                    }}>
-                      {e.role || '—'}
-                    </span>
-                  </td>
-                  <td>{e.department || '—'}</td>
-                  <td>{e.designation || '—'}</td>
-                  <td>{e.phone || '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {employees.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                      No staff found
+                    </td>
+                  </tr>
+                ) : employees.map(e => (
+                  <tr key={e.id}>
+                    <td style={{ fontWeight: '700' }}>#{e.admin_id}</td>
+                    <td>{e.full_name}</td>
+                    <td>
+                      <span style={{
+                        padding: '4px 12px', borderRadius: '20px',
+                        fontSize: '12px', fontWeight: '600',
+                        background: '#e0e7ff', color: '#4338ca',
+                        textTransform: 'capitalize'
+                      }}>
+                        {e.role || '—'}
+                      </span>
+                    </td>
+                    <td>{e.department || '—'}</td>
+                    <td>{e.designation || '—'}</td>
+                    <td>{e.phone || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
