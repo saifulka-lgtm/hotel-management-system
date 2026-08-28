@@ -43,7 +43,7 @@ const menuGroups = [
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ onNavigate }) {
   const { logout, admin } = useAuth();
 
   return (
@@ -102,7 +102,8 @@ export default function Sidebar() {
               <NavLink
                 key={item.path}
                 to={item.path}
-                style={({ isActive }) => ({
+                  onClick={onNavigate}
+                  style={({ isActive }) => ({
                   display: 'flex', alignItems: 'center', gap: '10px',
                   padding: '9px 12px', borderRadius: '8px',
                   marginBottom: '2px', textDecoration: 'none',
