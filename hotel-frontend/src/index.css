@@ -13,7 +13,7 @@
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f1f5f9;
+  background: #f4f6f9;
   color: #1e293b;
 }
 
@@ -23,26 +23,40 @@ body {
 
 .card {
   background: white;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  border: 1px solid #eef1f5;
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.09);
 }
 
 .btn {
   padding: 10px 20px;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
 }
 
-.btn-primary  { background: var(--brand-navy); color: white; }
+.btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-primary  { background: var(--brand-navy); color: white; box-shadow: 0 2px 6px rgba(31,58,95,0.25); }
 .btn-primary:hover  { background: var(--brand-navy-dark); }
 
-/* Call-to-action — "New Booking", "New Order", "Place Order" ইত্যাদির জন্য */
-.btn-cta      { background: var(--brand-red); color: white; }
+.btn-cta      { background: var(--brand-red); color: white; box-shadow: 0 2px 6px rgba(255,33,71,0.3); }
 .btn-cta:hover      { background: var(--brand-red-dark); }
 
 .btn-danger   { background: #ef4444; color: white; }
@@ -60,37 +74,44 @@ table { width: 100%; border-collapse: collapse; }
 
 table th {
   background: #f8fafc;
-  padding: 12px 16px;
+  padding: 13px 16px;
   text-align: left;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 1px solid #e2e8f0;
+  letter-spacing: 0.6px;
+  border-bottom: 2px solid #eef1f5;
 }
 
 table td {
-  padding: 14px 16px;
-  border-bottom: 1px solid #f1f5f9;
+  padding: 15px 16px;
+  border-bottom: 1px solid #f4f6f9;
   font-size: 14px;
   color: #374151;
+}
+
+table tr {
+  transition: background 0.15s ease;
 }
 
 table tr:hover td { background: #f8fafc; }
 
 input, select, textarea {
   width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  padding: 11px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
   font-size: 14px;
   outline: none;
-  transition: border 0.2s;
+  transition: border 0.2s, box-shadow 0.2s;
   background: white;
 }
 
-input:focus, select:focus { border-color: var(--brand-navy); }
+input:focus, select:focus {
+  border-color: var(--brand-navy);
+  box-shadow: 0 0 0 3px rgba(31,58,95,0.08);
+}
 
 label {
   display: block;
@@ -119,21 +140,35 @@ label {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .modal-box {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 28px;
   width: 480px;
   max-width: 90vw;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .modal-header {
@@ -146,14 +181,18 @@ label {
 .modal-header h3 { font-size: 18px; color: #1e293b; }
 
 .close-btn {
-  background: none;
+  background: #f1f5f9;
   border: none;
-  font-size: 20px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 15px;
   cursor: pointer;
   color: #64748b;
+  transition: all 0.15s;
 }
 
-.close-btn:hover { color: #ef4444; }
+.close-btn:hover { background: #fee2e2; color: #ef4444; }
 
 .grid-2 {
   display: grid;
@@ -176,11 +215,12 @@ label {
 
 .search-box {
   padding: 10px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
   font-size: 14px;
   outline: none;
   width: 280px;
+  transition: border 0.2s;
 }
 
 .search-box:focus { border-color: var(--brand-navy); }
