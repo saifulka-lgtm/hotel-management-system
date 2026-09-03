@@ -285,7 +285,7 @@ def dashboard():
 
     chart_labels, chart_data = [], []
     for i in range(5, -1, -1):
-        m   = (td.replace(day=1) - delta(days=30 * i))
+        m   = (td.replace(day=1) - timedelta(days=30 * i))
         ms  = m.replace(day=1)
         me  = (ms + timedelta(days=32)).replace(day=1)
         rev = db.session.query(func.coalesce(func.sum(Payment.paid_amount), 0))\
