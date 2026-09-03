@@ -21,11 +21,18 @@ function InvoiceCopy({ booking, copyLabel }) {
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         borderBottom: '3px solid #1F3A5F', paddingBottom: '16px', marginBottom: '24px'
       }}>
-        <div>
-          <div style={{ fontSize: '22px', fontWeight: '700', color: '#1F3A5F' }}>
-            Enterprise Hospitality Platform
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <img
+            src="/logo.png"
+            alt="Logo"
+            style={{ width: '44px', height: '44px', objectFit: 'contain' }}
+          />
+          <div>
+            <div style={{ fontSize: '20px', fontWeight: '700', color: '#1F3A5F' }}>
+              Enterprise Hospitality Platform
+            </div>
+            <div style={{ fontSize: '13px', color: '#64748b' }}>Bangladesh</div>
           </div>
-          <div style={{ fontSize: '13px', color: '#64748b' }}>Bangladesh</div>
         </div>
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontSize: '20px', fontWeight: '700', color: '#FF2147' }}>INVOICE</div>
