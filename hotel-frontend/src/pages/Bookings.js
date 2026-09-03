@@ -14,7 +14,8 @@ export default function Bookings() {
   const [form, setForm] = useState({
     customer_id: '', room_id: '',
     checkin_date: '', checkout_date: '',
-    new_customer_name: '', new_customer_phone: ''
+    new_customer_name: '', new_customer_phone: '',
+    discount_percent: 0
   });
   const [customers, setCustomers] = useState([]);
   const [rooms,     setRooms]     = useState([]);
@@ -38,7 +39,7 @@ export default function Bookings() {
   }, []);
 
   const resetForm = () => {
-    setForm({ customer_id:'', room_id:'', checkin_date:'', checkout_date:'', new_customer_name:'', new_customer_phone:'' });
+    setForm({ customer_id:'', room_id:'', checkin_date:'', checkout_date:'', new_customer_name:'', new_customer_phone:'', discount_percent: 0 });
     setIsNewCustomer(false);
   };
 
@@ -63,11 +64,12 @@ export default function Bookings() {
       }
 
       await API.post('/api/bookings', {
-        customer_id: parseInt(customerId),
-        room_id:     parseInt(form.room_id),
-        checkin_date: form.checkin_date,
-        checkout_date: form.checkout_date
-      });
+      customer_id: parseInt(customerId),
+      room_id:     parseInt(form.room_id),
+      checkin_date: form.checkin_date,
+      checkout_date: form.checkout_date,
+      discount_percent: parseFloat(form.discount_percent) || 0
+    });
       toast.success('Booking created successfully!');
       setShowModal(false);
       resetForm();
@@ -145,14 +147,14 @@ export default function Bookings() {
       </div>
 
       {/* Stats */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'16px', marginBottom:'24px' }}>
+      <div className="stat-grid">
         {[
           { label:'Total',     value: bookings.length,                                       color:'#3b82f6' },
           { label:'Confirmed', value: bookings.filter(b=>b.status==='Confirmed').length,     color:'#22c55e' },
           { label:'Completed', value: bookings.filter(b=>b.status==='Completed').length,     color:'#6366f1' },
           { label:'Cancelled', value: bookings.filter(b=>b.status==='Cancelled').length,     color:'#ef4444' },
         ].map(s => (
-          <div key={s.label} className="card" style={{ borderLeft:`4px solid ${s.color}`, padding:'16px' }}>
+          <div key={s.label} className="stat-card" style={{ '--stat-color': s.color }}>
             <div style={{ fontSize:'24px', fontWeight:'700', color:s.color }}>{s.value}</div>
             <div style={{ fontSize:'13px', color:'#64748b' }}>{s.label} Bookings</div>
           </div>
@@ -194,90 +196,92 @@ export default function Bookings() {
             ⏳ Loading bookings...
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Customer</th>
-                <th>Room</th>
-                <th>Check-in</th>
-                <th>Check-out</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 ? (
+          <div className="table-wrapper">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="8" style={{ textAlign:'center', padding:'40px', color:'#64748b' }}>
-                    No bookings found
-                  </td>
+                  <th>ID</th>
+                  <th>Customer</th>
+                  <th>Room</th>
+                  <th>Check-in</th>
+                  <th>Check-out</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              ) : filtered.map(b => (
-                <tr key={b.id}>
-                  <td style={{ fontWeight:'700' }}>#{b.id}</td>
-                  <td>{b.customer}</td>
-                  <td>Room {b.room}</td>
-                  <td>{b.checkin_date}</td>
-                  <td>{b.checkout_date}</td>
-                  <td style={{ color:'#1F3A5F', fontWeight:'600' }}>
-                    ৳{b.total_amount?.toLocaleString()}
-                  </td>
-                  <td>
-                    <span style={{
-                      padding:'4px 12px', borderRadius:'20px',
-                      fontSize:'12px', fontWeight:'600',
-                      background: statusColor[b.status]?.bg || '#f1f5f9',
-                      color:      statusColor[b.status]?.color || '#64748b'
-                    }}>
-                      {b.status}
-                    </span>
-                  </td>
-                  <td>
-                    <div style={{ display:'flex', gap:'6px', flexWrap:'wrap' }}>
-                      {b.status === 'Pending' && (
-                        <button
-                          className="btn btn-success"
-                          style={{ padding:'5px 10px', fontSize:'11px' }}
-                          onClick={() => handleCheckin(b.id)}
-                        >
-                          ✅ Check-in
-                        </button>
-                      )}
-                      {b.status === 'Confirmed' && (
-                        <button
-                          className="btn btn-info"
-                          style={{ padding:'5px 10px', fontSize:'11px' }}
-                          onClick={() => handleCheckout(b.id)}
-                        >
-                          🚪 Check-out
-                        </button>
-                      )}
-                      {!['Completed','Cancelled'].includes(b.status) && (
-                        <button
-                          className="btn btn-danger"
-                          style={{ padding:'5px 10px', fontSize:'11px' }}
-                          onClick={() => handleCancel(b.id)}
-                        >
-                          ✕ Cancel
-                        </button>
-                      )}
-                      {b.status === 'Completed' && (
-                      <button
-                      className="btn btn-info"
-                      style={{ padding:'5px 10px', fontSize:'11px' }}
-                      onClick={() => navigate(`/invoice/${b.id}`)}
-                      >
-                    🧾 Invoice
-                    </button>
-                    )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan="8" style={{ textAlign:'center', padding:'40px', color:'#64748b' }}>
+                      No bookings found
+                    </td>
+                  </tr>
+                ) : filtered.map(b => (
+                  <tr key={b.id}>
+                    <td style={{ fontWeight:'700' }}>#{b.id}</td>
+                    <td>{b.customer}</td>
+                    <td>Room {b.room}</td>
+                    <td>{b.checkin_date}</td>
+                    <td>{b.checkout_date}</td>
+                    <td style={{ color:'#1F3A5F', fontWeight:'600' }}>
+                      ৳{b.total_amount?.toLocaleString()}
+                    </td>
+                    <td>
+                      <span style={{
+                        padding:'4px 12px', borderRadius:'20px',
+                        fontSize:'12px', fontWeight:'600',
+                        background: statusColor[b.status]?.bg || '#f1f5f9',
+                        color:      statusColor[b.status]?.color || '#64748b'
+                      }}>
+                        {b.status}
+                      </span>
+                    </td>
+                    <td>
+                      <div style={{ display:'flex', gap:'6px', flexWrap:'wrap' }}>
+                        {b.status === 'Pending' && (
+                          <button
+                            className="btn btn-success"
+                            style={{ padding:'5px 10px', fontSize:'11px' }}
+                            onClick={() => handleCheckin(b.id)}
+                          >
+                            ✅ Check-in
+                          </button>
+                        )}
+                        {b.status === 'Confirmed' && (
+                          <button
+                            className="btn btn-info"
+                            style={{ padding:'5px 10px', fontSize:'11px' }}
+                            onClick={() => handleCheckout(b.id)}
+                          >
+                            🚪 Check-out
+                          </button>
+                        )}
+                        {!['Completed','Cancelled'].includes(b.status) && (
+                          <button
+                            className="btn btn-danger"
+                            style={{ padding:'5px 10px', fontSize:'11px' }}
+                            onClick={() => handleCancel(b.id)}
+                          >
+                            ✕ Cancel
+                          </button>
+                        )}
+                        {b.status === 'Completed' && (
+                          <button
+                            className="btn btn-info"
+                            style={{ padding:'5px 10px', fontSize:'11px' }}
+                            onClick={() => navigate(`/invoice/${b.id}`)}
+                          >
+                            🧾 Invoice
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -389,32 +393,62 @@ export default function Bookings() {
                 </div>
               </div>
 
+              <div className="form-group">
+              <label>Discount (%)</label>
+                <input
+                type="number"
+                min="0"
+                max="100"
+                value={form.discount_percent}
+                onChange={e => setForm({...form, discount_percent: e.target.value})}
+                placeholder="0"
+                />
+              </div>
+
               {/* Price Preview */}
               {form.room_id && form.checkin_date && form.checkout_date && (
-                <div style={{
-                  background:'#f8fafc', borderRadius:'8px',
-                  padding:'12px 16px', marginBottom:'16px',
-                  border:'1px solid #e2e8f0'
-                }}>
-                  {(() => {
-                    const room   = rooms.find(r => r.id === parseInt(form.room_id));
-                    const nights = Math.max(0, Math.round(
-                      (new Date(form.checkout_date) - new Date(form.checkin_date)) / 86400000
-                    ));
-                    const total  = (room?.price || 0) * nights;
-                    return (
-                      <div style={{ display:'flex', justifyContent:'space-between' }}>
-                        <span style={{ color:'#64748b', fontSize:'13px' }}>
-                          {nights} night{nights !== 1 ? 's' : ''} × ৳{room?.price?.toLocaleString()}
-                        </span>
-                        <span style={{ color:'#1F3A5F', fontWeight:'700', fontSize:'16px' }}>
-                          Total: ৳{total.toLocaleString()}
-                        </span>
-                      </div>
-                    );
-                  })()}
-                </div>
-              )}
+              <div style={{
+              background:'#f8fafc', borderRadius:'8px',
+              padding:'12px 16px', marginBottom:'16px',
+              border:'1px solid #e2e8f0'
+              }}>
+              {(() => {
+                const room   = rooms.find(r => r.id === parseInt(form.room_id));
+                const nights = Math.max(0, Math.round(
+                (new Date(form.checkout_date) - new Date(form.checkin_date)) / 86400000
+                ));
+              const subtotal = (room?.price || 0) * nights;
+              const discount = parseFloat(form.discount_percent) || 0;
+              const total = subtotal * (1 - discount / 100);
+            return (
+            <>
+          <div style={{ display:'flex', justifyContent:'space-between', marginBottom: '6px' }}>
+            <span style={{ color:'#64748b', fontSize:'13px' }}>
+              {nights} night{nights !== 1 ? 's' : ''} × ৳{room?.price?.toLocaleString()}
+            </span>
+            <span style={{ color:'#374151', fontSize:'13px' }}>
+              ৳{subtotal.toLocaleString()}
+            </span>
+          </div>
+          {discount > 0 && (
+            <div style={{ display:'flex', justifyContent:'space-between', marginBottom: '6px' }}>
+              <span style={{ color:'#16a34a', fontSize:'13px' }}>Discount ({discount}%)</span>
+              <span style={{ color:'#16a34a', fontSize:'13px' }}>
+                −৳{(subtotal - total).toLocaleString()}
+              </span>
+            </div>
+          )}
+          <div style={{ display:'flex', justifyContent:'space-between', paddingTop: '6px', borderTop: '1px solid #e2e8f0' }}>
+            <span style={{ fontWeight: '600', fontSize: '14px' }}>Total</span>
+            <span style={{ color:'#1F3A5F', fontWeight:'700', fontSize:'16px' }}>
+              ৳{total.toLocaleString()}
+            </span>
+          </div>
+        </>
+      );
+    })()}
+  </div>
+)}
 
               <div style={{ display:'flex', gap:'12px' }}>
                 <button type="submit" className="btn btn-cta" style={{ flex:1 }}>
