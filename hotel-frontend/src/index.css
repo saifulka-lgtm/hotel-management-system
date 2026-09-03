@@ -418,4 +418,8 @@ label {
   .page-header {
     display: none !important;
   }
+
+  .invoice-cut-line {
+    page-break-after: avoid;
+  }
 }

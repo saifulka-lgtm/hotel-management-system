@@ -3,6 +3,110 @@ import { useParams, useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
 
+function InvoiceCopy({ booking, copyLabel }) {
+  return (
+    <div className="card" style={{ maxWidth: '700px', margin: '0 auto 24px', position: 'relative' }}>
+      {/* Copy label */}
+      <div style={{
+        position: 'absolute', top: '16px', right: '16px',
+        fontSize: '11px', fontWeight: '700', color: '#94a3b8',
+        border: '1px solid #e2e8f0', borderRadius: '6px',
+        padding: '3px 10px', textTransform: 'uppercase', letterSpacing: '0.5px'
+      }}>
+        {copyLabel}
+      </div>
+
+      {/* Header */}
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        borderBottom: '3px solid #1F3A5F', paddingBottom: '16px', marginBottom: '24px'
+      }}>
+        <div>
+          <div style={{ fontSize: '22px', fontWeight: '700', color: '#1F3A5F' }}>
+            Enterprise Hospitality Platform
+          </div>
+          <div style={{ fontSize: '13px', color: '#64748b' }}>Bangladesh</div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontSize: '20px', fontWeight: '700', color: '#FF2147' }}>INVOICE</div>
+          <div style={{ fontSize: '13px', color: '#64748b' }}>#{booking.id}</div>
+        </div>
+      </div>
+
+      {/* Guest & Booking Info */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+        <div>
+          <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600', marginBottom: '4px' }}>
+            BILL TO
+          </div>
+          <div style={{ fontSize: '15px', fontWeight: '600' }}>{booking.customer}</div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600', marginBottom: '4px' }}>
+            STATUS
+          </div>
+          <span style={{
+            padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600',
+            background: booking.payment_status === 'Paid' ? '#dcfce7' : '#fef9c3',
+            color: booking.payment_status === 'Paid' ? '#16a34a' : '#ca8a04'
+          }}>
+            {booking.payment_status || 'Due'}
+          </span>
+        </div>
+      </div>
+
+      {/* Room / Stay Details */}
+      <table style={{ marginBottom: '24px' }}>
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+            <th style={{ textAlign: 'right' }}>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Room {booking.room}</td>
+            <td>{booking.checkin_date}</td>
+            <td>{booking.checkout_date}</td>
+            <td style={{ textAlign: 'right', fontWeight: '600' }}>
+              ৳{booking.total_amount?.toLocaleString()}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* Totals */}
+      <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+          <span style={{ color: '#64748b' }}>Total Amount</span>
+          <span style={{ fontWeight: '600' }}>৳{booking.total_amount?.toLocaleString()}</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+          <span style={{ color: '#64748b' }}>Paid Amount</span>
+          <span style={{ fontWeight: '600', color: '#16a34a' }}>
+            ৳{booking.paid_amount?.toLocaleString()}
+          </span>
+        </div>
+        <div style={{
+          display: 'flex', justifyContent: 'space-between',
+          paddingTop: '12px', borderTop: '2px solid #1F3A5F'
+        }}>
+          <span style={{ fontSize: '16px', fontWeight: '700' }}>Due Amount</span>
+          <span style={{ fontSize: '16px', fontWeight: '700', color: '#FF2147' }}>
+            ৳{booking.due_amount?.toLocaleString()}
+          </span>
+        </div>
+      </div>
+
+      <div style={{ marginTop: '32px', textAlign: 'center', fontSize: '12px', color: '#94a3b8' }}>
+        Thank you for choosing Enterprise Hospitality Platform
+      </div>
+    </div>
+  );
+}
+
 export default function Invoice() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -26,7 +130,7 @@ export default function Invoice() {
 
   return (
     <div>
-      <div className="page-header" style={{ printColorAdjust: 'exact' }}>
+      <div className="page-header">
         <h2>🧾 Invoice</h2>
         <div style={{ display: 'flex', gap: '10px' }}>
           <button className="btn btn-secondary" onClick={() => navigate('/bookings')}>
@@ -38,94 +142,20 @@ export default function Invoice() {
         </div>
       </div>
 
-      <div className="card" id="invoice-print" style={{ maxWidth: '700px', margin: '0 auto' }}>
-        {/* Header */}
-        <div style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          borderBottom: '3px solid #1F3A5F', paddingBottom: '16px', marginBottom: '24px'
+      <div id="invoice-print">
+        <InvoiceCopy booking={booking} copyLabel="Office Copy" />
+        <div className="invoice-cut-line" style={{
+          borderTop: '2px dashed #cbd5e1', margin: '0 auto 24px', maxWidth: '700px',
+          textAlign: 'center', position: 'relative'
         }}>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: '700', color: '#1F3A5F' }}>
-              Enterprise Hospitality Platform
-            </div>
-            <div style={{ fontSize: '13px', color: '#64748b' }}>Bangladesh</div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '20px', fontWeight: '700', color: '#FF2147' }}>INVOICE</div>
-            <div style={{ fontSize: '13px', color: '#64748b' }}>#{booking.id}</div>
-          </div>
-        </div>
-
-        {/* Guest & Booking Info */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-          <div>
-            <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600', marginBottom: '4px' }}>
-              BILL TO
-            </div>
-            <div style={{ fontSize: '15px', fontWeight: '600' }}>{booking.customer}</div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600', marginBottom: '4px' }}>
-              STATUS
-            </div>
-            <span style={{
-              padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600',
-              background: booking.payment_status === 'Paid' ? '#dcfce7' : '#fef9c3',
-              color: booking.payment_status === 'Paid' ? '#16a34a' : '#ca8a04'
-            }}>
-              {booking.payment_status || 'Due'}
-            </span>
-          </div>
-        </div>
-
-        {/* Room / Stay Details */}
-        <table style={{ marginBottom: '24px' }}>
-          <thead>
-            <tr>
-              <th>Description</th>
-              <th>Check-in</th>
-              <th>Check-out</th>
-              <th style={{ textAlign: 'right' }}>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Room {booking.room}</td>
-              <td>{booking.checkin_date}</td>
-              <td>{booking.checkout_date}</td>
-              <td style={{ textAlign: 'right', fontWeight: '600' }}>
-                ৳{booking.total_amount?.toLocaleString()}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        {/* Totals */}
-        <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <span style={{ color: '#64748b' }}>Total Amount</span>
-            <span style={{ fontWeight: '600' }}>৳{booking.total_amount?.toLocaleString()}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <span style={{ color: '#64748b' }}>Paid Amount</span>
-            <span style={{ fontWeight: '600', color: '#16a34a' }}>
-              ৳{booking.paid_amount?.toLocaleString()}
-            </span>
-          </div>
-          <div style={{
-            display: 'flex', justifyContent: 'space-between',
-            paddingTop: '12px', borderTop: '2px solid #1F3A5F'
+          <span style={{
+            position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)',
+            background: '#f1f5f9', padding: '0 12px', fontSize: '11px', color: '#94a3b8'
           }}>
-            <span style={{ fontSize: '16px', fontWeight: '700' }}>Due Amount</span>
-            <span style={{ fontSize: '16px', fontWeight: '700', color: '#FF2147' }}>
-              ৳{booking.due_amount?.toLocaleString()}
-            </span>
-          </div>
+            ✂️
+          </span>
         </div>
-
-        <div style={{ marginTop: '32px', textAlign: 'center', fontSize: '12px', color: '#94a3b8' }}>
-          Thank you for choosing Enterprise Hospitality Platform
-        </div>
+        <InvoiceCopy booking={booking} copyLabel="Customer Copy" />
       </div>
     </div>
   );
