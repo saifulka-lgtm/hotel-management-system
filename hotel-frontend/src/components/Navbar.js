@@ -17,13 +17,21 @@ const titles = {
   '/delivery':           { icon: '🛵', title: 'Delivery Orders' },
   '/employees':          { icon: '👤', title: 'Staff & Roles' },
   '/inventory':          { icon: '📦', title: 'Inventory' },
+  '/table-reservations': { icon: '📅', title: 'Table Reservations' },
 };
 
 export default function Navbar({ onMenuClick, showMenuButton }) {
   const { pathname } = useLocation();
   const [showNotif, setShowNotif] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  const page = titles[pathname] || { icon: '🏨', title: 'Enterprise Hospitality Platform' };
+
+  const getPage = () => {
+    if (pathname.startsWith('/invoice')) {
+      return { icon: 'logo', title: 'Invoice' };
+    }
+    return titles[pathname] || { icon: 'logo', title: 'Enterprise Hospitality Platform' };
+  };
+  const page = getPage();
 
   const now = new Date().toLocaleString('en-BD', {
     dateStyle: 'medium', timeStyle: 'short'
@@ -67,6 +75,7 @@ export default function Navbar({ onMenuClick, showMenuButton }) {
     delivery: '#3b82f6',
     housekeeping: '#f59e0b',
     service_request: '#8b5cf6',
+    reservation: '#0ea5e9',
     general: '#64748b',
   };
 
@@ -100,11 +109,16 @@ export default function Navbar({ onMenuClick, showMenuButton }) {
           </button>
         )}
 
+        {/* Page Title */}
         <h1 style={{
           fontSize: '18px', fontWeight: '700', color: '#1e293b',
           display: 'flex', alignItems: 'center', gap: '8px'
         }}>
-          <span>{page.icon}</span>
+          {page.icon === 'logo' ? (
+            <img src="/logo.png" alt="Logo" style={{ width: '22px', height: '22px', objectFit: 'contain' }} />
+          ) : (
+            <span>{page.icon}</span>
+          )}
           <span>{page.title}</span>
         </h1>
       </div>
@@ -115,13 +129,13 @@ export default function Navbar({ onMenuClick, showMenuButton }) {
         {/* Date/Time */}
         <div className="navbar-date-pill" style={{
           display: 'flex', alignItems: 'center', gap: '6px',
-            fontSize: '12px', color: '#64748b',
-            background: '#f8fafc', padding: '6px 12px',
-             borderRadius: '20px', border: '1px solid #e2e8f0'
-            }}>
-            <span>🕐</span>
-            <span>{now}</span>
-          </div>
+          fontSize: '12px', color: '#64748b',
+          background: '#f8fafc', padding: '6px 12px',
+          borderRadius: '20px', border: '1px solid #e2e8f0'
+        }}>
+          <span>🕐</span>
+          <span>{now}</span>
+        </div>
 
         {/* Notification Bell */}
         <div style={{ position: 'relative' }}>
