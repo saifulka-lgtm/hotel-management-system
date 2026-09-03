@@ -1131,10 +1131,15 @@ def api_create_booking():
     if not is_room_available(room.id, ci, co):
         return jsonify({'error': 'Room is not available for the selected dates'}), 400
 
-    nights  = (co - ci).days
-    total   = room.price * nights
+    nights = (co - ci).days
+    subtotal = room.price * nights
+    discount_percent = float(data.get('discount_percent', 0))
+    discount_percent = max(0, min(discount_percent, 100))  # 0-100% এর মধ্যে সীমাবদ্ধ
+    total = subtotal * (1 - discount_percent / 100)
+
     booking = Booking(customer_id=customer.id, room_id=room.id,
-                      checkin_date=ci, checkout_date=co, total_amount=total)
+                      checkin_date=ci, checkout_date=co,
+                      total_amount=total, discount_percent=discount_percent)
     db.session.add(booking)
     db.session.flush()
 
