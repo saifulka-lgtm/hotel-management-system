@@ -507,6 +507,20 @@ def api_menu_all():
     items = MenuItem.query.all()
     return jsonify([i.to_dict() for i in items])
 
+
+@app.route('/api/debug-fix-db')
+def debug_fix_db():
+    from sqlalchemy import text
+    try:
+        db.session.execute(text(
+            "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS discount_percent FLOAT DEFAULT 0"
+        ))
+        db.session.commit()
+        return jsonify({"status": "success", "message": "discount_percent column ensured"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)})
+
 # ── Booking ───────────────────────────────────────────────────────────────────
 @app.route('/book-room', methods=['GET', 'POST'])
 def book_room():
