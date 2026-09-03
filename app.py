@@ -222,7 +222,7 @@ def is_room_available(room_id, checkin, checkout, exclude_booking_id=None):
     query = Booking.query.filter(
         Booking.room_id == room_id,
         Booking.booking_status != 'Cancelled',
-        Booking.checkin_< checkout,
+        Booking.checkin_date < checkout,
         Booking.checkout_date > checkin
     )
     if exclude_booking_id:
