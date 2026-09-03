@@ -20,6 +20,11 @@ export default function Bookings() {
   const [customers, setCustomers] = useState([]);
   const [rooms,     setRooms]     = useState([]);
 
+  // ── Checkout modal state ──
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [checkoutBookingId, setCheckoutBookingId] = useState(null);
+  const [checkoutForm, setCheckoutForm] = useState({ paid_amount: '', payment_method: 'Cash' });
+
   const fetchBookings = () => {
     setLoading(true);
     API.get('/api/bookings')
@@ -64,12 +69,12 @@ export default function Bookings() {
       }
 
       await API.post('/api/bookings', {
-      customer_id: parseInt(customerId),
-      room_id:     parseInt(form.room_id),
-      checkin_date: form.checkin_date,
-      checkout_date: form.checkout_date,
-      discount_percent: parseFloat(form.discount_percent) || 0
-    });
+        customer_id: parseInt(customerId),
+        room_id:     parseInt(form.room_id),
+        checkin_date: form.checkin_date,
+        checkout_date: form.checkout_date,
+        discount_percent: parseFloat(form.discount_percent) || 0
+      });
       toast.success('Booking created successfully!');
       setShowModal(false);
       resetForm();
@@ -90,17 +95,23 @@ export default function Bookings() {
     }
   };
 
-  const handleCheckout = async (id) => {
-    const paid = window.prompt('Enter paid amount (৳):');
-    if (paid === null) return;
-    const method = window.prompt('Payment method (Cash/Card/bKash/Nagad):', 'Cash');
-    if (method === null) return;
+  // ── Checkout modal খোলা ──
+  const openCheckout = (id) => {
+    setCheckoutBookingId(id);
+    setCheckoutForm({ paid_amount: '', payment_method: 'Cash' });
+    setShowCheckoutModal(true);
+  };
+
+  // ── Checkout submit করা ──
+  const submitCheckout = async (e) => {
+    e.preventDefault();
     try {
-      await API.put(`/api/bookings/${id}/checkout`, {
-        paid_amount: parseFloat(paid) || 0,
-        payment_method: method || 'Cash'
+      await API.put(`/api/bookings/${checkoutBookingId}/checkout`, {
+        paid_amount: parseFloat(checkoutForm.paid_amount) || 0,
+        payment_method: checkoutForm.payment_method
       });
-      toast.success(`Booking #${id} checked out!`);
+      toast.success(`Booking #${checkoutBookingId} checked out!`);
+      setShowCheckoutModal(false);
       fetchBookings();
     } catch (err) {
       toast.error(err.response?.data?.error || 'Check-out failed');
@@ -252,7 +263,7 @@ export default function Bookings() {
                           <button
                             className="btn btn-info"
                             style={{ padding:'5px 10px', fontSize:'11px' }}
-                            onClick={() => handleCheckout(b.id)}
+                            onClick={() => openCheckout(b.id)}
                           >
                             🚪 Check-out
                           </button>
@@ -394,61 +405,61 @@ export default function Bookings() {
               </div>
 
               <div className="form-group">
-              <label>Discount (%)</label>
+                <label>Discount (%)</label>
                 <input
-                type="number"
-                min="0"
-                max="100"
-                value={form.discount_percent}
-                onChange={e => setForm({...form, discount_percent: e.target.value})}
-                placeholder="0"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={form.discount_percent}
+                  onChange={e => setForm({...form, discount_percent: e.target.value})}
+                  placeholder="0"
                 />
               </div>
 
               {/* Price Preview */}
               {form.room_id && form.checkin_date && form.checkout_date && (
-              <div style={{
-              background:'#f8fafc', borderRadius:'8px',
-              padding:'12px 16px', marginBottom:'16px',
-              border:'1px solid #e2e8f0'
-              }}>
-              {(() => {
-                const room   = rooms.find(r => r.id === parseInt(form.room_id));
-                const nights = Math.max(0, Math.round(
-                (new Date(form.checkout_date) - new Date(form.checkin_date)) / 86400000
-                ));
-              const subtotal = (room?.price || 0) * nights;
-              const discount = parseFloat(form.discount_percent) || 0;
-              const total = subtotal * (1 - discount / 100);
-            return (
-            <>
-          <div style={{ display:'flex', justifyContent:'space-between', marginBottom: '6px' }}>
-            <span style={{ color:'#64748b', fontSize:'13px' }}>
-              {nights} night{nights !== 1 ? 's' : ''} × ৳{room?.price?.toLocaleString()}
-            </span>
-            <span style={{ color:'#374151', fontSize:'13px' }}>
-              ৳{subtotal.toLocaleString()}
-            </span>
-          </div>
-          {discount > 0 && (
-            <div style={{ display:'flex', justifyContent:'space-between', marginBottom: '6px' }}>
-              <span style={{ color:'#16a34a', fontSize:'13px' }}>Discount ({discount}%)</span>
-              <span style={{ color:'#16a34a', fontSize:'13px' }}>
-                −৳{(subtotal - total).toLocaleString()}
-              </span>
-            </div>
-          )}
-          <div style={{ display:'flex', justifyContent:'space-between', paddingTop: '6px', borderTop: '1px solid #e2e8f0' }}>
-            <span style={{ fontWeight: '600', fontSize: '14px' }}>Total</span>
-            <span style={{ color:'#1F3A5F', fontWeight:'700', fontSize:'16px' }}>
-              ৳{total.toLocaleString()}
-            </span>
-          </div>
-        </>
-      );
-    })()}
-  </div>
-)}
+                <div style={{
+                  background:'#f8fafc', borderRadius:'8px',
+                  padding:'12px 16px', marginBottom:'16px',
+                  border:'1px solid #e2e8f0'
+                }}>
+                  {(() => {
+                    const room   = rooms.find(r => r.id === parseInt(form.room_id));
+                    const nights = Math.max(0, Math.round(
+                      (new Date(form.checkout_date) - new Date(form.checkin_date)) / 86400000
+                    ));
+                    const subtotal = (room?.price || 0) * nights;
+                    const discount = parseFloat(form.discount_percent) || 0;
+                    const total = subtotal * (1 - discount / 100);
+                    return (
+                      <>
+                        <div style={{ display:'flex', justifyContent:'space-between', marginBottom: '6px' }}>
+                          <span style={{ color:'#64748b', fontSize:'13px' }}>
+                            {nights} night{nights !== 1 ? 's' : ''} × ৳{room?.price?.toLocaleString()}
+                          </span>
+                          <span style={{ color:'#374151', fontSize:'13px' }}>
+                            ৳{subtotal.toLocaleString()}
+                          </span>
+                        </div>
+                        {discount > 0 && (
+                          <div style={{ display:'flex', justifyContent:'space-between', marginBottom: '6px' }}>
+                            <span style={{ color:'#16a34a', fontSize:'13px' }}>Discount ({discount}%)</span>
+                            <span style={{ color:'#16a34a', fontSize:'13px' }}>
+                              −৳{(subtotal - total).toLocaleString()}
+                            </span>
+                          </div>
+                        )}
+                        <div style={{ display:'flex', justifyContent:'space-between', paddingTop: '6px', borderTop: '1px solid #e2e8f0' }}>
+                          <span style={{ fontWeight: '600', fontSize: '14px' }}>Total</span>
+                          <span style={{ color:'#1F3A5F', fontWeight:'700', fontSize:'16px' }}>
+                            ৳{total.toLocaleString()}
+                          </span>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
 
               <div style={{ display:'flex', gap:'12px' }}>
                 <button type="submit" className="btn btn-cta" style={{ flex:1 }}>
@@ -459,6 +470,62 @@ export default function Bookings() {
                   className="btn btn-secondary"
                   style={{ flex:1 }}
                   onClick={() => { setShowModal(false); resetForm(); }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Checkout Modal */}
+      {showCheckoutModal && (
+        <div className="modal-overlay" onClick={() => setShowCheckoutModal(false)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>🚪 Check-out — Booking #{checkoutBookingId}</h3>
+              <button className="close-btn" onClick={() => setShowCheckoutModal(false)}>✕</button>
+            </div>
+
+            <form onSubmit={submitCheckout}>
+              <div className="form-group">
+                <label>Paid Amount (৳) *</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={checkoutForm.paid_amount}
+                  onChange={e => setCheckoutForm({ ...checkoutForm, paid_amount: e.target.value })}
+                  placeholder="e.g. 3000"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Payment Method *</label>
+                <select
+                  value={checkoutForm.payment_method}
+                  onChange={e => setCheckoutForm({ ...checkoutForm, payment_method: e.target.value })}
+                  required
+                >
+                  <option value="Cash">Cash</option>
+                  <option value="Card">Card</option>
+                  <option value="bKash">bKash</option>
+                  <option value="Nagad">Nagad</option>
+                  <option value="Rocket">Rocket</option>
+                </select>
+              </div>
+
+              <div style={{ display:'flex', gap:'12px' }}>
+                <button type="submit" className="btn btn-cta" style={{ flex:1 }}>
+                  ✅ Complete Check-out
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ flex:1 }}
+                  onClick={() => setShowCheckoutModal(false)}
                 >
                   Cancel
                 </button>
