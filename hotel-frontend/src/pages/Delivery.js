@@ -207,7 +207,13 @@ export default function Delivery() {
                         </button>
                       )}
                       {o.status === 'delivered' && (
-                        <span style={{ fontSize: '12px', color: '#22c55e' }}>✅ Delivered</span>
+                      <button
+                       className="btn btn-info"
+                        style={{ padding: '5px 10px', fontSize: '11px' }}
+                        onClick={() => navigate(`/delivery-slip/${o.id}`)}
+                        >
+                        🧾 Slip
+                      </button>
                       )}
                     </td>
                   </tr>

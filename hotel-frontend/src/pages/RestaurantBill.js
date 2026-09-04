@@ -3,6 +3,80 @@ import { useParams, useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
 
+function BillCopy({ order, copyLabel }) {
+  return (
+    <div className="card" style={{ maxWidth: '500px', margin: '0 auto 24px', position: 'relative' }}>
+      <div style={{
+        position: 'absolute', top: '16px', right: '16px',
+        fontSize: '11px', fontWeight: '700', color: '#94a3b8',
+        border: '1px solid #e2e8f0', borderRadius: '6px',
+        padding: '3px 10px', textTransform: 'uppercase', letterSpacing: '0.5px'
+      }}>
+        {copyLabel}
+      </div>
+
+      {/* Header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '12px',
+        borderBottom: '3px solid #1F3A5F', paddingBottom: '16px', marginBottom: '20px'
+      }}>
+        <img src="/logo.png" alt="Logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
+        <div>
+          <div style={{ fontSize: '18px', fontWeight: '700', color: '#1F3A5F' }}>
+            Enterprise Hospitality Platform
+          </div>
+          <div style={{ fontSize: '12px', color: '#64748b' }}>Restaurant Bill</div>
+        </div>
+      </div>
+
+      {/* Order Info */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', fontSize: '13px', color: '#64748b' }}>
+        <span>Order #{order.id}</span>
+        <span>{new Date(order.created_at).toLocaleString()}</span>
+      </div>
+      <div style={{ marginBottom: '16px', fontSize: '13px' }}>
+        <div>Table: <strong>{order.table_id ? `T-${order.table_id}` : 'Takeaway'}</strong></div>
+        <div>Customer: <strong>{order.customer_name || 'Guest'}</strong></div>
+      </div>
+
+      {/* Items */}
+      <table style={{ marginBottom: '16px' }}>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th style={{ textAlign: 'center' }}>Qty</th>
+            <th style={{ textAlign: 'right' }}>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {order.items?.map(item => (
+            <tr key={item.id}>
+              <td>{item.name}</td>
+              <td style={{ textAlign: 'center' }}>{item.quantity}</td>
+              <td style={{ textAlign: 'right' }}>৳{item.subtotal?.toLocaleString()}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* Total */}
+      <div style={{
+        borderTop: '2px solid #1F3A5F', paddingTop: '12px',
+        display: 'flex', justifyContent: 'space-between'
+      }}>
+        <span style={{ fontSize: '16px', fontWeight: '700' }}>Total</span>
+        <span style={{ fontSize: '18px', fontWeight: '700', color: '#FF2147' }}>
+          ৳{order.total_amount?.toLocaleString()}
+        </span>
+      </div>
+
+      <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '12px', color: '#94a3b8' }}>
+        Thank you for dining with us!
+      </div>
+    </div>
+  );
+}
+
 export default function RestaurantBill() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -38,65 +112,20 @@ export default function RestaurantBill() {
         </div>
       </div>
 
-      <div id="invoice-print" className="card" style={{ maxWidth: '500px', margin: '0 auto' }}>
-        {/* Header */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '12px',
-          borderBottom: '3px solid #1F3A5F', paddingBottom: '16px', marginBottom: '20px'
+      <div id="invoice-print">
+        <BillCopy order={order} copyLabel="Office Copy" />
+        <div className="invoice-cut-line" style={{
+          borderTop: '2px dashed #cbd5e1', margin: '0 auto 24px', maxWidth: '500px',
+          textAlign: 'center', position: 'relative'
         }}>
-          <img src="/logo.png" alt="Logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
-          <div>
-            <div style={{ fontSize: '18px', fontWeight: '700', color: '#1F3A5F' }}>
-              Enterprise Hospitality Platform
-            </div>
-            <div style={{ fontSize: '12px', color: '#64748b' }}>Restaurant Bill</div>
-          </div>
-        </div>
-
-        {/* Order Info */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', fontSize: '13px', color: '#64748b' }}>
-          <span>Order #{order.id}</span>
-          <span>{new Date(order.created_at).toLocaleString()}</span>
-        </div>
-        <div style={{ marginBottom: '16px', fontSize: '13px' }}>
-          <div>Table: <strong>{order.table_id ? `T-${order.table_id}` : 'Takeaway'}</strong></div>
-          <div>Customer: <strong>{order.customer_name || 'Guest'}</strong></div>
-        </div>
-
-        {/* Items */}
-        <table style={{ marginBottom: '16px' }}>
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th style={{ textAlign: 'center' }}>Qty</th>
-              <th style={{ textAlign: 'right' }}>Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-            {order.items?.map(item => (
-              <tr key={item.id}>
-                <td>{item.name}</td>
-                <td style={{ textAlign: 'center' }}>{item.quantity}</td>
-                <td style={{ textAlign: 'right' }}>৳{item.subtotal?.toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* Total */}
-        <div style={{
-          borderTop: '2px solid #1F3A5F', paddingTop: '12px',
-          display: 'flex', justifyContent: 'space-between'
-        }}>
-          <span style={{ fontSize: '16px', fontWeight: '700' }}>Total</span>
-          <span style={{ fontSize: '18px', fontWeight: '700', color: '#FF2147' }}>
-            ৳{order.total_amount?.toLocaleString()}
+          <span style={{
+            position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)',
+            background: '#f1f5f9', padding: '0 12px', fontSize: '11px', color: '#94a3b8'
+          }}>
+            ✂️
           </span>
         </div>
-
-        <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '12px', color: '#94a3b8' }}>
-          Thank you for dining with us!
-        </div>
+        <BillCopy order={order} copyLabel="Customer Copy" />
       </div>
     </div>
   );

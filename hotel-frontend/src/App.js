@@ -9,6 +9,7 @@ import Bookings      from './pages/Bookings';
 import Restaurant    from './pages/Restaurant';
 import RestaurantBill from './pages/RestaurantBill';
 import Delivery      from './pages/Delivery';
+import DeliverySlip from './pages/DeliverySlip';
 import Notifications from './pages/Notifications';
 import Customers     from './pages/Customers';
 import Payments      from './pages/Payments';
@@ -37,6 +38,7 @@ export default function App() {
             <Route path="restaurant"   element={<Restaurant />} />
             <Route path="restaurant-bill/:id" element={<RestaurantBill />} />
             <Route path="delivery"     element={<Delivery />} />
+            <Route path="delivery-slip/:id" element={<DeliverySlip />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="customers"    element={<Customers />} />
             <Route path="payments"     element={<Payments />} />
