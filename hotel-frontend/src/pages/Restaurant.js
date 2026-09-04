@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
 
 export default function Restaurant() {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [tables, setTables] = useState([]);
   const [menu, setMenu] = useState([]);
@@ -202,13 +204,13 @@ export default function Restaurant() {
                         </button>
                       )}
                       {o.status === 'billed' && (
-                              <button
-                              className="btn btn-info"
-                              style={{ padding: '5px 10px', fontSize: '11px' }}
-                              onClick={() => navigate(`/restaurant-bill/${o.id}`)}
-                              >
-                           🧾 Bill
-                         </button>
+                        <button
+                          className="btn btn-info"
+                          style={{ padding: '5px 10px', fontSize: '11px' }}
+                          onClick={() => navigate(`/restaurant-bill/${o.id}`)}
+                        >
+                          🧾 Bill
+                        </button>
                       )}
                     </td>
                   </tr>
