@@ -36,17 +36,22 @@ export default function Dashboard() {
   ];
 
   return (
-    <div>
-      {/* Stat Cards */}
-      <div className="stat-grid">
-        <div className="gradient-banner" style={{ marginBottom: '24px' }}>
-          <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '4px' }}>
-           Welcome back, Admin 👋
-            </h2>
-              <p style={{ fontSize: '14px', opacity: 0.85 }}>
-              Here's what's happening across your hotel, restaurant, and delivery operations today.
+            <div>
+        {/* Stat Cards */}
+                <div className="stat-grid">
+                    <div className="gradient-banner" style={{
+                      marginBottom: '24px',
+                        backgroundImage: 'linear-gradient(135deg, rgba(31,58,95,0.88) 0%, rgba(44,77,122,0.85) 60%, rgba(255,33,71,0.75) 140%), url(https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80)',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                        }}>
+                        <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '4px' }}>
+                      Welcome back, Admin 👋
+                    </h2>
+                  <p style={{ fontSize: '14px', opacity: 0.9 }}>
+                Here's what's happening across your hotel, restaurant, and delivery operations today.
               </p>
-        </div>
+            </div>
         {statCards.map(s => (
             <div key={s.label} className="stat-card" style={{ '--stat-color': s.color }}>
             <div style={{ fontSize: '24px', marginBottom: '8px' }}>{s.icon}</div>
