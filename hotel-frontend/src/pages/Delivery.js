@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
 
 export default function Delivery() {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [menu, setMenu] = useState([]);
@@ -207,13 +209,13 @@ export default function Delivery() {
                         </button>
                       )}
                       {o.status === 'delivered' && (
-                      <button
-                       className="btn btn-info"
-                        style={{ padding: '5px 10px', fontSize: '11px' }}
-                        onClick={() => navigate(`/delivery-slip/${o.id}`)}
+                        <button
+                          className="btn btn-info"
+                          style={{ padding: '5px 10px', fontSize: '11px' }}
+                          onClick={() => navigate(`/delivery-slip/${o.id}`)}
                         >
-                        🧾 Slip
-                      </button>
+                          🧾 Slip
+                        </button>
                       )}
                     </td>
                   </tr>
