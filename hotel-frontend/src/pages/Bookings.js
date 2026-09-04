@@ -407,13 +407,18 @@ export default function Bookings() {
               <div className="form-group">
                 <label>Discount (%)</label>
                 <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={form.discount_percent}
-                  onChange={e => setForm({...form, discount_percent: e.target.value})}
-                  placeholder="0"
-                />
+                  type="text"
+                  inputMode="decimal"
+                  value={checkoutForm.paid_amount}
+                  onChange={e => {
+                  const val = e.target.value;
+                  if (val === '' || /^\d*\.?\d*$/.test(val)) {
+                  setCheckoutForm({ ...checkoutForm, paid_amount: val });
+                  }
+                  }}
+                  placeholder="e.g. 3000"
+                  required
+                  />
               </div>
 
               {/* Price Preview */}
