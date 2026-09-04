@@ -202,7 +202,13 @@ export default function Restaurant() {
                         </button>
                       )}
                       {o.status === 'billed' && (
-                        <span style={{ fontSize: '12px', color: '#22c55e' }}>✅ Done</span>
+                              <button
+                              className="btn btn-info"
+                              style={{ padding: '5px 10px', fontSize: '11px' }}
+                              onClick={() => navigate(`/restaurant-bill/${o.id}`)}
+                              >
+                           🧾 Bill
+                         </button>
                       )}
                     </td>
                   </tr>

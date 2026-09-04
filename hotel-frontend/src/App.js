@@ -7,6 +7,7 @@ import Dashboard     from './pages/Dashboard';
 import Rooms         from './pages/Rooms';
 import Bookings      from './pages/Bookings';
 import Restaurant    from './pages/Restaurant';
+import RestaurantBill from './pages/RestaurantBill';
 import Delivery      from './pages/Delivery';
 import Notifications from './pages/Notifications';
 import Customers     from './pages/Customers';
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="rooms"        element={<Rooms />} />
             <Route path="bookings"     element={<Bookings />} />
             <Route path="restaurant"   element={<Restaurant />} />
+            <Route path="restaurant-bill/:id" element={<RestaurantBill />} />
             <Route path="delivery"     element={<Delivery />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="customers"    element={<Customers />} />
