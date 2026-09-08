@@ -104,32 +104,27 @@ export default function Rooms() {
           </div>
         ))}
       </div>
+
       {/* Visual Room Type Gallery */}
       <div style={{
-      display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px'
+        display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px'
       }}>
-     {['Single', 'Double', 'Suite', 'Deluxe'].map(type => (
-    <div key={type} className="card" style={{ padding: 0, overflow: 'hidden' }}>
-      <img
-        src={roomTypeImages[type]}
-        alt={type}
-        style={{ width: '100%', height: '110px', objectFit: 'cover', display: 'block' }}
-      />
-      <div style={{ padding: '10px 14px' }}>
-        <div style={{ fontWeight: '600', fontSize: '14px' }}>{type} Room</div>
-        <div style={{ fontSize: '12px', color: '#64748b' }}>
-          {rooms.filter(r => r.room_type === type).length} available
-        </div>
+        {['Single', 'Double', 'Suite', 'Deluxe'].map(type => (
+          <div key={type} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+            <img
+              src={roomTypeImages[type]}
+              alt={type}
+              style={{ width: '100%', height: '110px', objectFit: 'cover', display: 'block' }}
+            />
+            <div style={{ padding: '10px 14px' }}>
+              <div style={{ fontWeight: '600', fontSize: '14px' }}>{type} Room</div>
+              <div style={{ fontSize: '12px', color: '#64748b' }}>
+                {rooms.filter(r => r.room_type === type).length} available
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
-    </div>
-  ))}
-</div>
-
-{/* Table */}
-<div className="card">
-
-
-
 
       {/* Table */}
       <div className="card">
