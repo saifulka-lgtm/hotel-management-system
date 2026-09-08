@@ -16,7 +16,7 @@ export default function Menu() {
   const [editingId, setEditingId] = useState(null);
 
   const [form, setForm] = useState({
-    name: '', category: 'Main', price: '', description: '', is_available: true
+    name: '', category: 'Main', price: '', description: '', is_available: true, image_url: ''
   });
 
   const fetchItems = () => {
@@ -30,7 +30,7 @@ export default function Menu() {
   useEffect(() => { fetchItems(); }, []);
 
   const resetForm = () => {
-    setForm({ name: '', category: 'Main', price: '', description: '', is_available: true });
+    setForm({ name: '', category: 'Main', price: '', description: '', is_available: true, image_url: '' });
     setEditingId(null);
   };
 
@@ -38,7 +38,7 @@ export default function Menu() {
     setForm({
       name: item.name, category: item.category || 'Main',
       price: item.price, description: item.description || '',
-      is_available: item.is_available
+      is_available: item.is_available, image_url: item.image_url || ''
     });
     setEditingId(item.id);
     setShowModal(true);
@@ -93,7 +93,7 @@ export default function Menu() {
         {items.map(m => (
           <div key={m.id} className="card" style={{ padding: 0, overflow: 'hidden', position: 'relative' }}>
             <img
-              src={categoryImages[m.category] || categoryImages.Main}
+              src={m.image_url || categoryImages[m.category] || categoryImages.Main}
               alt={m.name}
               style={{ width: '100%', height: '100px', objectFit: 'cover', display: 'block' }}
             />
@@ -230,6 +230,16 @@ export default function Menu() {
                   type="text"
                   value={form.description}
                   onChange={e => setForm({ ...form, description: e.target.value })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Image URL (optional)</label>
+                <input
+                  type="text"
+                  value={form.image_url}
+                  onChange={e => setForm({ ...form, image_url: e.target.value })}
+                  placeholder="https://..."
                 />
               </div>
 
