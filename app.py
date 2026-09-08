@@ -191,14 +191,47 @@ def seed_db():
         print("✅  10 rooms inserted")
 
     if not MenuItem.query.first():
-        menu_items = [
-            MenuItem(name='Chicken Biryani', category='Main',   price=280, description='Classic Dhaka-style biryani'),
-            MenuItem(name='Beef Tehari',      category='Main',   price=250, description='Spicy beef tehari'),
-            MenuItem(name='Vegetable Curry',  category='Main',   price=150, description='Mixed vegetable curry'),
-            MenuItem(name='Mutton Rezala',    category='Main',   price=350, description='Rich mutton rezala'),
-            MenuItem(name='Borhani',          category='Drink',  price=50,  description='Traditional yogurt drink'),
-            MenuItem(name='Firni',            category='Dessert', price=80, description='Rice pudding dessert'),
-        ]
+    menu_items = [
+        MenuItem(name='Chicken Biryani', category='Main', price=280,
+                 description='Classic Dhaka-style biryani',
+                 image_url='https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&q=80'),
+        MenuItem(name='Beef Tehari', category='Main', price=250,
+                 description='Spicy beef tehari',
+                 image_url='https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&q=80'),
+        MenuItem(name='Vegetable Curry', category='Main', price=150,
+                 description='Mixed vegetable curry',
+                 image_url='https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400&q=80'),
+        MenuItem(name='Mutton Rezala', category='Main', price=350,
+                 description='Rich mutton rezala',
+                 image_url='https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400&q=80'),
+        MenuItem(name='Chicken Curry', category='Main', price=220,
+                 description='Traditional home-style chicken curry',
+                 image_url='https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80'),
+        MenuItem(name='Fish Curry', category='Main', price=260,
+                 description='Bengali-style fish curry',
+                 image_url='https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=400&q=80'),
+        MenuItem(name='Chicken Kebab', category='Starter', price=180,
+                 description='Grilled chicken kebab skewers',
+                 image_url='https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=400&q=80'),
+        MenuItem(name='Vegetable Samosa', category='Starter', price=60,
+                 description='Crispy fried samosa',
+                 image_url='https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&q=80'),
+        MenuItem(name='Naan Bread', category='Starter', price=40,
+                 description='Freshly baked naan',
+                 image_url='https://images.unsplash.com/photo-1626074353765-517a681e40be?w=400&q=80'),
+        MenuItem(name='Borhani', category='Drink', price=50,
+                 description='Traditional yogurt drink',
+                 image_url='https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=400&q=80'),
+        MenuItem(name='Mango Lassi', category='Drink', price=70,
+                 description='Sweet mango yogurt drink',
+                 image_url='https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=400&q=80'),
+        MenuItem(name='Firni', category='Dessert', price=80,
+                 description='Rice pudding dessert',
+                 image_url='https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80'),
+        MenuItem(name='Rasmalai', category='Dessert', price=90,
+                 description='Sweet cheese dumplings in milk',
+                 image_url='https://images.unsplash.com/photo-1601303516361-8ee021ea1ac9?w=400&q=80'),
+    ]
         db.session.add_all(menu_items)
         db.session.commit()
         print("✅  6 menu items inserted")
