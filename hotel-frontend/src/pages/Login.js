@@ -27,7 +27,9 @@ export default function Login() {
     <div style={{
       minHeight: '100vh', display: 'flex',
       alignItems: 'center', justifyContent: 'center',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
+      backgroundImage: 'linear-gradient(135deg, rgba(15,23,42,0.85) 0%, rgba(31,58,95,0.85) 100%), url(https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=1600&q=80)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center'
     }}>
       <div className="card" style={{ width: '380px' }}>
 
