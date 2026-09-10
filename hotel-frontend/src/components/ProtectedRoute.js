@@ -3,6 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from './Sidebar';
 import Navbar  from './Navbar';
+import Footer  from './Footer';
 
 export default function ProtectedRoute() {
   const { admin, loading } = useAuth();
@@ -34,7 +35,6 @@ export default function ProtectedRoute() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', position: 'relative' }}>
 
-      {/* Mobile overlay — sidebar খোলা থাকলে বাকি স্ক্রিন dim করে, বাইরে ক্লিক করলে বন্ধ হবে */}
       {isMobile && sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
@@ -45,7 +45,6 @@ export default function ProtectedRoute() {
         />
       )}
 
-      {/* Sidebar — mobile-এ off-canvas (slide in/out), desktop-এ সবসময় visible */}
       <div style={{
         position: isMobile ? 'fixed' : 'relative',
         left: isMobile ? (sidebarOpen ? 0 : '-240px') : 'auto',
@@ -60,6 +59,7 @@ export default function ProtectedRoute() {
         <main style={{ flex: 1, padding: isMobile ? '14px' : '24px', background: '#f1f5f9' }}>
           <Outlet />
         </main>
+        <Footer />
       </div>
     </div>
   );
