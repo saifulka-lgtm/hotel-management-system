@@ -12,7 +12,7 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: #f4f6f9;
   color: #1e293b;
 }
@@ -24,6 +24,14 @@ html, body {
 
 #root {
   overflow-x: hidden;
+}
+
+main {
+  background-image: linear-gradient(rgba(244,246,249,0.97), rgba(244,246,249,0.97)),
+                     url('https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1600&q=60');
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
 }
 
 ::-webkit-scrollbar { width: 6px; }
@@ -79,7 +87,6 @@ html, body {
 .btn-info     { background: #3b82f6; color: white; }
 .btn-info:hover     { background: #2563eb; }
 
-/* Table-কে একটা wrapper-এর ভেতরে scroll করানো হবে (page না, শুধু table নিজে প্রয়োজনে) */
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
@@ -255,7 +262,6 @@ label {
 
 .search-box:focus { border-color: var(--brand-navy); }
 
-/* ── Enhanced visual polish — Dashboard ── */
 .stat-card {
   background: white;
   border-radius: 16px;
@@ -285,10 +291,37 @@ label {
   margin-bottom: 24px;
 }
 
-/* =========================================================
-   MOBILE — 768px এবং তার নিচে (ট্যাবলেট/বড় ফোন)
-   ========================================================= */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #invoice-print, #invoice-print * {
+    visibility: visible;
+  }
+
+  #invoice-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+  }
+
+  .page-header {
+    display: none !important;
+  }
+
+  .invoice-cut-line {
+    page-break-after: avoid;
+  }
+}
+
 @media (max-width: 768px) {
+  .navbar-date-pill {
+    display: none;
+  }
 
   .page-header {
     flex-direction: column;
@@ -336,7 +369,6 @@ label {
     padding: 14px !important;
   }
 
-  /* Stat card-এর বড় সংখ্যা ছোট করা (inline style override করতে !important লাগবে) */
   .stat-card > div:nth-child(2) {
     font-size: 20px !important;
   }
@@ -349,7 +381,6 @@ label {
     font-size: 16px !important;
   }
 
-  /* Table — কোনো forced min-width না, শুধু ছোট font/padding, দরকার হলেই .table-wrapper scroll করবে */
   table th {
     font-size: 10px !important;
     padding: 8px 10px !important;
@@ -375,9 +406,6 @@ label {
   }
 }
 
-/* =========================================================
-   ছোট ফোন — 480px এবং তার নিচে
-   ========================================================= */
 @media (max-width: 480px) {
   .stat-grid {
     grid-template-columns: 1fr;
@@ -394,32 +422,5 @@ label {
 
   .page-header h2 {
     font-size: 16px !important;
-  }
-}
-/* ── Print — শুধু Invoice content দেখাবে, Sidebar/Navbar লুকানো থাকবে ── */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-
-  #invoice-print, #invoice-print * {
-    visibility: visible;
-  }
-
-  #invoice-print {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 20px;
-  }
-
-  .page-header {
-    display: none !important;
-  }
-
-  .invoice-cut-line {
-    page-break-after: avoid;
   }
 }
