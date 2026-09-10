@@ -191,7 +191,7 @@ def seed_db():
         print("✅  10 rooms inserted")
 
     if not MenuItem.query.first():
-    menu_items = [
+        menu_items = [
         MenuItem(name='Chicken Biryani', category='Main', price=280,
                  description='Classic Dhaka-style biryani',
                  image_url='https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&q=80'),
