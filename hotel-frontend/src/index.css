@@ -424,3 +424,26 @@ label {
     font-size: 16px !important;
   }
 }
+/* ============================================
+SIDEBAR FONT FIX
+============================================ */
+
+.sidebar,
+.sidebar *,
+aside,
+aside * {
+font-family: "Segoe UI", "Noto Sans Bengali", "Nirmala UI", Arial, sans-serif !important;
+}
+
+/* Sidebar text */
+.sidebar h1,
+.sidebar h2,
+.sidebar h3,
+.sidebar h4,
+.sidebar p,
+.sidebar span,
+.sidebar a,
+.sidebar button,
+.sidebar div {
+font-family: "Segoe UI", "Noto Sans Bengali", "Nirmala UI", Arial, sans-serif !important;
+}
